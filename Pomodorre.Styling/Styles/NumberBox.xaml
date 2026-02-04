@@ -1,0 +1,22 @@
+<ResourceDictionary
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <SolidColorBrush x:Key="TextControlBorderBrush" Color="{ThemeResource ControlStrokeColorDefault}"/>
+    <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="{ThemeResource ControlStrokeColorDefault}"/>
+    <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="{ThemeResource ControlStrokeColorDefault}"/>
+    <Thickness x:Key="TextControlBorderThemeThicknessFocused">1</Thickness>
+    <Style x:Key="PDNumBoxStyle" TargetType="NumberBox">
+        <Setter Property="CornerRadius" Value="7" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="FontStretch" Value="Normal" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="SelectionHighlightColor" Value="{ThemeResource TextControlSelectionHighlightColor}" />
+        <Setter Property="SelectionFlyout" Value="{StaticResource TextControlCommandBarSelectionFlyout}" />
+        <Setter Property="Background" Value="{ThemeResource TextControlBackground}" />
+        <Setter Property="BorderThickness" Value="{ThemeResource TextControlBorderThemeThickness}" />
+        <Setter Property="Foreground" Value="{ThemeResource TextControlForeground}" />
+        <Setter Property="Padding" Value="{ThemeResource TextControlThemePadding}" />
+    </Style>
+
+</ResourceDictionary>

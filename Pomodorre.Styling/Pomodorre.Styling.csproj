@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>Pomodorre.Styling</RootNamespace>
+    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+    <UseWinUI>true</UseWinUI>
+    <WinUISDKReferences>true</WinUISDKReferences>
+    <EnableDefaultPageItems>false</EnableDefaultPageItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Styles\AchievementControl.xaml" />
+    <None Remove="Styles\Button.xaml" />
+    <None Remove="Styles\FocusGoal.xaml" />
+    <None Remove="Styles\Grid.xaml" />
+    <None Remove="Styles\ListViewItem.xaml" />
+    <None Remove="Styles\NumberBox.xaml" />
+    <None Remove="Styles\RadioButton.xaml" />
+    <None Remove="Styles\StreakWeekdays.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7463" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260101001" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Styles\AchievementControl.xaml">
+      <Generator>Designer</Generator>
+    </Page>
+    <Page Include="Styles\Button.xaml">
+      <Generator>Designer</Generator>
+    </Page>
+    <Page Include="Styles\FocusGoal.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\Grid.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\ListViewItem.xaml">
+      <Generator>Designer</Generator>
+    </Page>
+    <Page Include="Styles\NumberBox.xaml">
+      <Generator>Designer</Generator>
+    </Page>
+    <Page Include="Styles\RadioButton.xaml">
+      <Generator>Designer</Generator>
+    </Page>
+    <Page Include="Styles\StreakWeekdays.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Pomodorre.Controls\Pomodorre.Controls.csproj" />
+  </ItemGroup>
+  
+</Project>

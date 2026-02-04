@@ -1,0 +1,33 @@
+<ResourceDictionary
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:local="using:Pomodorre.Controls">
+
+    <Style TargetType="local:StreakWeekdays">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:StreakWeekdays">
+                    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsHitTestVisible="False">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <RadioButton Grid.Column="0" Style="{StaticResource PDStreakDayItem}" IsChecked="{Binding Is1Checked, RelativeSource={RelativeSource TemplatedParent}}" Content="{Binding Radio1Name, RelativeSource={RelativeSource TemplatedParent}}"/>
+                        <RadioButton Grid.Column="1" Style="{StaticResource PDStreakDayItem}" IsChecked="{Binding Is2Checked, RelativeSource={RelativeSource TemplatedParent}}" Content="{Binding Radio2Name, RelativeSource={RelativeSource TemplatedParent}}"/>
+                        <RadioButton Grid.Column="2" Style="{StaticResource PDStreakDayItem}" IsChecked="{Binding Is3Checked, RelativeSource={RelativeSource TemplatedParent}}" Content="{Binding Radio3Name, RelativeSource={RelativeSource TemplatedParent}}"/>
+                        <RadioButton Grid.Column="3" Style="{StaticResource PDStreakDayItem}" IsChecked="{Binding Is4Checked, RelativeSource={RelativeSource TemplatedParent}}" Content="{Binding Radio4Name, RelativeSource={RelativeSource TemplatedParent}}"/>
+                        <RadioButton Grid.Column="4" Style="{StaticResource PDStreakDayItem}" IsChecked="{Binding Is5Checked, RelativeSource={RelativeSource TemplatedParent}}" Content="{Binding Radio5Name, RelativeSource={RelativeSource TemplatedParent}}"/>
+                        <RadioButton Grid.Column="5" Style="{StaticResource PDStreakDayItem}" IsChecked="{Binding Is6Checked, RelativeSource={RelativeSource TemplatedParent}}" Content="{Binding Radio6Name, RelativeSource={RelativeSource TemplatedParent}}"/>
+                        <RadioButton Grid.Column="6" Style="{StaticResource PDStreakDayItem}" IsChecked="{Binding Is7Checked, RelativeSource={RelativeSource TemplatedParent}}" Content="{Binding Radio7Name, RelativeSource={RelativeSource TemplatedParent}}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

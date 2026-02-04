@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Pomodorre.WinUI (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Pomodorre.WinUI (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
