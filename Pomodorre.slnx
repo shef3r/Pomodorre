@@ -4,8 +4,12 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Project Path="Pomodorre.BackgroundServices/Pomodorre.BackgroundServices.csproj" Id="00edc79b-b3e8-48fe-85b9-61b96176faac" />
   <Project Path="Pomodorre.Controls/Pomodorre.Controls.csproj" />
+  <Project Path="Pomodorre.Converters/Pomodorre.Converters.csproj" Id="c45a861d-5171-419a-bf79-57621bedc55d" />
+  <Project Path="Pomodorre.Statistics/Pomodorre.Statistics.csproj" Id="e77f4838-9454-4c72-b596-81b413ef906b" />
   <Project Path="Pomodorre.Styling/Pomodorre.Styling.csproj" />
+  <Project Path="Pomodorre.Tools/Pomodorre.Tools.csproj" Id="08bd3228-db23-451b-b071-32028840046d" />
   <Project Path="Pomodorre.WinUI/Pomodorre.WinUI.csproj">
     <Platform Solution="*|ARM64" Project="ARM64" />
     <Platform Solution="*|x64" Project="x64" />

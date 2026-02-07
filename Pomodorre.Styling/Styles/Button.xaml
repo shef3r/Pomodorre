@@ -5,15 +5,15 @@
     <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}" x:Key="PDAccentButtonStyle">
         <Setter Property="MinHeight" Value="40"/>
         <Setter Property="MinWidth" Value="120"/>
-        <Setter Property="CornerRadius" Value="7"/>
+        <Setter Property="CornerRadius" Value="10"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <ContentPresenter x:Name="ContentPresenter" Foreground="{TemplateBinding Foreground}" BackgroundSizing="{TemplateBinding BackgroundSizing}" BorderThickness="{TemplateBinding BorderThickness}" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" ContentTransitions="{TemplateBinding ContentTransitions}" CornerRadius="{TemplateBinding CornerRadius}" Padding="{TemplateBinding Padding}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" AutomationProperties.AccessibilityView="Raw">
                         <ContentPresenter.Background>
                             <LinearGradientBrush StartPoint="-0.5,0" EndPoint="1,1.5">
-                                <GradientStop x:Name="GradientStop1" Color="{ThemeResource SystemAccentColorDark2}" Offset="0"/>
-                                <GradientStop x:Name="GradientStop2" Color="{ThemeResource SystemAccentColorDark1}" Offset="1"/>
+                                <GradientStop x:Name="GradientStop1" Color="{ThemeResource SystemAccentColorDark1}" Offset="0"/>
+                                <GradientStop x:Name="GradientStop2" Color="{ThemeResource SystemAccentColor}" Offset="1"/>
                             </LinearGradientBrush>
                         </ContentPresenter.Background>
                         <ContentPresenter.BorderBrush>

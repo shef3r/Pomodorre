@@ -13,6 +13,14 @@
     <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Pages\GoalsPage.xaml" />
+    <None Remove="Pages\HistoryPage.xaml" />
+    <None Remove="Pages\HomePage.xaml" />
+    <None Remove="Pages\SettingsPage.xaml" />
+    <None Remove="Pages\StarsPage.xaml" />
+    <None Remove="Pages\StatsPage.xaml" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -41,8 +49,42 @@
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260101001" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Pomodorre.BackgroundServices\Pomodorre.BackgroundServices.csproj" />
     <ProjectReference Include="..\Pomodorre.Controls\Pomodorre.Controls.csproj" />
+    <ProjectReference Include="..\Pomodorre.Converters\Pomodorre.Converters.csproj" />
+    <ProjectReference Include="..\Pomodorre.Statistics\Pomodorre.Statistics.csproj" />
     <ProjectReference Include="..\Pomodorre.Styling\Pomodorre.Styling.csproj" />
+    <ProjectReference Include="..\Pomodorre.Tools\Pomodorre.Tools.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Pages\SettingsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Pages\GoalsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Pages\StarsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Pages\HistoryPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Pages\StatsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Pages\HomePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <!--

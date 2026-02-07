@@ -7,7 +7,7 @@
     <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="{ThemeResource ControlStrokeColorDefault}"/>
     <Thickness x:Key="TextControlBorderThemeThicknessFocused">1</Thickness>
     <Style x:Key="PDNumBoxStyle" TargetType="NumberBox">
-        <Setter Property="CornerRadius" Value="7" />
+        <Setter Property="CornerRadius" Value="10" />
         <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="FontStretch" Value="Normal" />
         <Setter Property="IsTabStop" Value="False" />
