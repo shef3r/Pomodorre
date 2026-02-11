@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
 using System.Text.Json;
 using Windows.Storage;
 
@@ -18,17 +20,38 @@ namespace Pomodorre.Tools
             get => Get(nameof(FocusBlocks), 5);
             set => Set(nameof(FocusBlocks), value);
         }
-
         public static int RestBlockMinutes
         {
             get => Get(nameof(RestBlockMinutes), 5);
             set => Set(nameof(RestBlockMinutes), value);
         }
-
+        public static bool IsTimePickerCollapsed
+        {
+            get => Get(nameof(IsTimePickerCollapsed), false);
+            set => Set(nameof(IsTimePickerCollapsed), value);
+        }
         public static int FocusBlockMinutes
         {
             get => Get(nameof(FocusBlockMinutes), 20);
             set => Set(nameof(FocusBlockMinutes), value);
+        }
+        public static string EndSessionTimeString
+        {
+            get
+            {
+                try
+                {
+                    var totalMinutes = checked((FocusBlockMinutes * FocusBlocks) + (RestBlockMinutes * (FocusBlocks - 1)));
+                    var end = DateTime.Now.AddMinutes(totalMinutes);
+                    var pattern = DateTimeFormatInfo.CurrentInfo?.ShortTimePattern ?? CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern;
+                    return end.ToString(pattern);
+                }
+                catch
+                {
+                    var pattern = DateTimeFormatInfo.CurrentInfo?.ShortTimePattern ?? CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern;
+                    return DateTime.Now.ToString(pattern);
+                }
+            }
         }
         public static int StarAmount
         {
@@ -39,6 +62,15 @@ namespace Pomodorre.Tools
         {
             get => Get<Dictionary<DateTime, bool>>(nameof(StreakHistory), new Dictionary<DateTime, bool>());
             set => Set(nameof(StreakHistory), value);
+        }
+        public static int CurrentStreak
+        {
+            get
+            {
+                var history = StreakHistory.OrderByDescending(x => x.Key);
+                int count = history.TakeWhile(x => x.Value).Count();
+                return count > 0 ? count : 1;
+            }
         }
 
         private static T Get<T>(string key, T? defaultValue = default)
@@ -106,6 +138,7 @@ namespace Pomodorre.Tools
             }
 
             RaisePropertyChanged(key);
+            RaisePropertyChanged(nameof(EndSessionTimeString));
         }
 
         private static void RaisePropertyChanged(string propertyName)

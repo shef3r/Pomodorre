@@ -9,6 +9,6 @@
     mc:Ignorable="d">
 
     <Grid>
-
+        <TextBlock>Settings</TextBlock>
     </Grid>
 </Page>

@@ -14,7 +14,7 @@
         <MicaBackdrop Kind="BaseAlt" />
     </Window.SystemBackdrop>
 
-    <Grid>
+    <Grid x:Name="RootGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="47"/>
             <RowDefinition Height="*"/>
@@ -38,16 +38,16 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="1"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*" MinHeight="0"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" HorizontalAlignment="Stretch" Margin="0,0,0,15" Height="320">
+            <Grid Grid.Row="0" HorizontalAlignment="Stretch" Margin="0,0,0,9">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="0"/>
+                    <RowDefinition Height="Auto" x:Name="MinuteRow"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Button Style="{StaticResource PDAccentButtonStyle}" HorizontalAlignment="Stretch" Height="48">
@@ -56,50 +56,66 @@
                         <TextBlock FontFamily="Segoe UI Variable Display" Text="Start" FontSize="15" VerticalAlignment="Center" Opacity=".9" Margin="10,0,0,0"/>
                     </StackPanel>
                 </Button>
-                <TextBlock Grid.Row="1" Opacity=".7" FontSize="11" Margin="0,8,0,8" TextWrapping="Wrap">Session finished by 10:30.</TextBlock>
-                <Grid Grid.Row="3" Margin="0,0,0,10">
-                    <NumberBox x:Name="FocusBlockBox" Maximum="1000" Style="{StaticResource PDNumBoxStyle}" Value="{x:Bind tools:Settings.FocusBlocks, Mode=TwoWay}" Header="Focus blocks" ValidationMode="InvalidInputOverwritten" SpinButtonPlacementMode="Compact" SmallChange="1" LargeChange="5" Minimum="1" GotFocus="FocusBlockBox_GotFocus" LostFocus="FocusBlockBox_LostFocus"/>
-                    <TextBlock x:Name="FocusBlockOverlay" IsHitTestVisible="False"
-                               FontFamily="{Binding FontFamily, ElementName=FocusBlockBox}"
-                               FontSize="{Binding FontSize, ElementName=FocusBlockBox}"
-                               FontWeight="{Binding FontWeight, ElementName=FocusBlockBox}"
-                               Foreground="{Binding Foreground, ElementName=FocusBlockBox}"
-                               Opacity="{Binding Opacity, ElementName=FocusBlockBox}"
-                               VerticalAlignment="Center" HorizontalAlignment="Left" Margin="11,25,0,0">
+                <TextBlock Grid.Row="1" Opacity=".7" FontSize="10.5" Margin="0,8,0,8" TextWrapping="Wrap" Loaded="SessionTime_Loaded">Session will end by <Run x:Name="SessionTimeText"/>.</TextBlock>
+
+                <StackPanel x:Name="MinuteContent" Orientation="Vertical" Grid.Row="3" HorizontalAlignment="Stretch" Visibility="Visible" RenderTransformOrigin="0.5,0">
+                    <StackPanel.RenderTransform>
+                        <ScaleTransform x:Name="MinuteContentScale" ScaleY="1" />
+                    </StackPanel.RenderTransform>
+                    <Grid Margin="0,20,0,10">
+                        <NumberBox x:Name="FocusBlockBox" Maximum="1000" Style="{StaticResource PDNumBoxStyle}" Value="{x:Bind tools:Settings.FocusBlocks, Mode=TwoWay}" Header="Focus blocks" ValidationMode="InvalidInputOverwritten" SpinButtonPlacementMode="Compact" SmallChange="1" LargeChange="5" Minimum="1" GotFocus="FocusBlockBox_GotFocus" LostFocus="FocusBlockBox_LostFocus"/>
+                        <TextBlock x:Name="FocusBlockOverlay" IsHitTestVisible="False"
+                           FontFamily="{Binding FontFamily, ElementName=FocusBlockBox}"
+                           FontSize="{Binding FontSize, ElementName=FocusBlockBox}"
+                           FontWeight="{Binding FontWeight, ElementName=FocusBlockBox}"
+                           Foreground="{Binding Foreground, ElementName=FocusBlockBox}"
+                           Opacity="{Binding Opacity, ElementName=FocusBlockBox}"
+                           VerticalAlignment="Center" HorizontalAlignment="Left" Margin="11,25,0,0">
                           <Run Text="{Binding Text, ElementName=FocusBlockBox, Mode=OneWay}" Foreground="Transparent"/>
                           <Run Text="blocks" />
-                    </TextBlock>
-                </Grid>
-                <Grid Grid.Row="4" Margin="0,0,0,10">
-                    <NumberBox x:Name="RestBlockMinsBox" Maximum="1000" Style="{StaticResource PDNumBoxStyle}" Value="{x:Bind tools:Settings.RestBlockMinutes, Mode=TwoWay}" Header="Rest block time" ValidationMode="InvalidInputOverwritten" SpinButtonPlacementMode="Compact" SmallChange="1" LargeChange="5" Minimum="1" GotFocus="RestBlockMinsBox_GotFocus" LostFocus="RestBlockMinsBox_LostFocus"/>
-                    <TextBlock x:Name="RestBlockOverlay" IsHitTestVisible="False"
-                               FontFamily="{Binding FontFamily, ElementName=RestBlockMinsBox}"
-                               FontSize="{Binding FontSize, ElementName=RestBlockMinsBox}"
-                               FontWeight="{Binding FontWeight, ElementName=RestBlockMinsBox}"
-                               Foreground="{Binding Foreground, ElementName=RestBlockMinsBox}"
-                               Opacity="{Binding Opacity, ElementName=RestBlockMinsBox}"
-                               VerticalAlignment="Center" HorizontalAlignment="Left" Margin="11,25,0,0">
+                        </TextBlock>
+                    </Grid>
+                    <Grid Margin="0,0,0,10">
+                        <NumberBox x:Name="RestBlockMinsBox" Maximum="1000" Style="{StaticResource PDNumBoxStyle}" Value="{x:Bind tools:Settings.RestBlockMinutes, Mode=TwoWay}" Header="Rest block time" ValidationMode="InvalidInputOverwritten" SpinButtonPlacementMode="Compact" SmallChange="1" LargeChange="5" Minimum="1" GotFocus="RestBlockMinsBox_GotFocus" LostFocus="RestBlockMinsBox_LostFocus"/>
+                        <TextBlock x:Name="RestBlockOverlay" IsHitTestVisible="False"
+                           FontFamily="{Binding FontFamily, ElementName=RestBlockMinsBox}"
+                           FontSize="{Binding FontSize, ElementName=RestBlockMinsBox}"
+                           FontWeight="{Binding FontWeight, ElementName=RestBlockMinsBox}"
+                           Foreground="{Binding Foreground, ElementName=RestBlockMinsBox}"
+                           Opacity="{Binding Opacity, ElementName=RestBlockMinsBox}"
+                           VerticalAlignment="Center" HorizontalAlignment="Left" Margin="11,25,0,0">
                           <Run Text="{Binding Text, ElementName=RestBlockMinsBox, Mode=OneWay}" Foreground="Transparent"/>
                           <Run Text="minutes" />
-                    </TextBlock>
-                </Grid>
-                <Grid Grid.Row="5" Margin="0,0,0,10">
-                    <NumberBox x:Name="FocusBlockMinsBox" Maximum="1000" Style="{StaticResource PDNumBoxStyle}" Value="{x:Bind tools:Settings.FocusBlockMinutes, Mode=TwoWay}" Header="Focus block time" ValidationMode="InvalidInputOverwritten" SpinButtonPlacementMode="Compact" SmallChange="1" LargeChange="5" Minimum="1" GotFocus="FocusBlockMinsBox_GotFocus" LostFocus="FocusBlockMinsBox_LostFocus"/>
-                    <TextBlock x:Name="FocusBlockMinsOverlay" IsHitTestVisible="False"
-                               FontFamily="{Binding FontFamily, ElementName=FocusBlockMinsBox}"
-                               FontSize="{Binding FontSize, ElementName=FocusBlockMinsBox}"
-                               FontWeight="{Binding FontWeight, ElementName=FocusBlockMinsBox}"
-                               Foreground="{Binding Foreground, ElementName=FocusBlockMinsBox}"
-                               Opacity="{Binding Opacity, ElementName=FocusBlockMinsBox}"
-                               VerticalAlignment="Center" HorizontalAlignment="Left" Margin="11,25,0,0">
+                        </TextBlock>
+                    </Grid>
+                    <Grid Margin="0,0,0,10">
+                        <NumberBox x:Name="FocusBlockMinsBox" Maximum="1000" Style="{StaticResource PDNumBoxStyle}" Value="{x:Bind tools:Settings.FocusBlockMinutes, Mode=TwoWay}" Header="Focus block time" ValidationMode="InvalidInputOverwritten" SpinButtonPlacementMode="Compact" SmallChange="1" LargeChange="5" Minimum="1" GotFocus="FocusBlockMinsBox_GotFocus" LostFocus="FocusBlockMinsBox_LostFocus"/>
+                        <TextBlock x:Name="FocusBlockMinsOverlay" IsHitTestVisible="False"
+                           FontFamily="{Binding FontFamily, ElementName=FocusBlockMinsBox}"
+                           FontSize="{Binding FontSize, ElementName=FocusBlockMinsBox}"
+                           FontWeight="{Binding FontWeight, ElementName=FocusBlockMinsBox}"
+                           Foreground="{Binding Foreground, ElementName=FocusBlockMinsBox}"
+                           Opacity="{Binding Opacity, ElementName=FocusBlockMinsBox}"
+                           VerticalAlignment="Center" HorizontalAlignment="Left" Margin="11,25,0,0">
                           <Run Text="{Binding Text, ElementName=FocusBlockMinsBox, Mode=OneWay}" Foreground="Transparent"/>
                           <Run Text="minutes" />
-                    </TextBlock>
-                </Grid>
+                        </TextBlock>
+                    </Grid>
+                </StackPanel>
+                <AppBarButton HorizontalAlignment="Stretch" Width="145" CornerRadius="7" Height="48" x:Name="MinuteToggle" Click="MinuteToggle_Click" Grid.Row="4">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity=".7">
+                        <FontIcon Glyph="&#xE70E;" RenderTransformOrigin="0.5,0.5" FontSize="12">
+                            <FontIcon.RenderTransform>
+                                <RotateTransform Angle="0" x:Name="MinuteToggleChevronTransform"/>
+                            </FontIcon.RenderTransform>
+                        </FontIcon>
+                        <TextBlock Margin="10,0,0,0" FontSize="11">Customize</TextBlock>
+                    </StackPanel>
+                </AppBarButton>
             </Grid>
             <Rectangle Grid.Row="1" Margin="-20,0" HorizontalAlignment="Stretch" Fill="{ThemeResource AppBarSeparatorForegroundThemeBrush}" Opacity="0.2"/>
-            <ListView Grid.Row="2" Margin="0,20">
-                <ListViewItem Style="{StaticResource PDSidebarNavItem}">
+            <ListView Grid.Row="2" Margin="0,20,0,0" x:Name="SidebarListView" SelectionMode="Single" SelectionChanged="SidebarListView_SelectionChanged">
+                <ListViewItem Style="{StaticResource PDSidebarNavItem}" Tag="Home">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="30"/>
@@ -107,6 +123,91 @@
                         </Grid.ColumnDefinitions>
                         <FontIcon Glyph="" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" FontSize="16"/>
                         <TextBlock Text="Home" Grid.Column="1" VerticalAlignment="Center" FontSize="14"/>
+                    </Grid>
+                </ListViewItem>
+                <ListViewItem Style="{StaticResource PDSidebarNavItem}" Tag="Goals">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <FontIcon Glyph="" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" FontSize="16"/>
+                        <TextBlock Text="Goals" Grid.Column="1" VerticalAlignment="Center" FontSize="14"/>
+                    </Grid>
+                </ListViewItem>
+                <ListViewItem Style="{StaticResource PDSidebarNavItem}" Tag="History">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <FontIcon Glyph="" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" FontSize="16"/>
+                        <TextBlock Text="History" Grid.Column="1" VerticalAlignment="Center" FontSize="14"/>
+                    </Grid>
+                </ListViewItem>
+                <ListViewItem Style="{StaticResource PDSidebarNavItem}" Tag="Stats">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <FontIcon Glyph="" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" FontSize="16"/>
+                        <TextBlock Text="Statistics" Grid.Column="1" VerticalAlignment="Center" FontSize="14"/>
+                    </Grid>
+                </ListViewItem>
+
+                <ListViewItem Tag="Stars" Visibility="Collapsed"/>
+                <ListViewItem Tag="Streak" Visibility="Collapsed"/>
+                <ListViewItem Tag="Settings" Visibility="Collapsed"/>
+            </ListView>
+            <ListView Grid.Row="4" Margin="0" SelectionMode="Single" x:Name="SidebarListViewLower" SelectionChanged="SidebarListView_SelectionChanged" SelectedIndex="{Binding SelectedIndex, ElementName=SidebarListView, Mode=TwoWay}">
+                <ListView.Resources>
+                    <ResourceDictionary>
+                        <LinearGradientBrush StartPoint="-1,0" EndPoint="1,2" x:Key="AccentBrush1">
+                            <GradientStop x:Name="GradientStop1" Color="{ThemeResource SystemAccentColorLight1}" Offset="0"/>
+                            <GradientStop x:Name="GradientStop2" Color="{ThemeResource SystemAccentColorLight2}" Offset="1"/>
+                        </LinearGradientBrush>
+                    </ResourceDictionary>
+                </ListView.Resources>
+                
+                <ListViewItem Tag="Home" Visibility="Collapsed"/>
+                <ListViewItem Tag="Goals" Visibility="Collapsed"/>
+                <ListViewItem Tag="History" Visibility="Collapsed"/>
+                <ListViewItem Tag="Stats" Visibility="Collapsed"/>
+
+                <ListViewItem Style="{StaticResource PDSidebarNavItem}" Tag="Stars">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <FontIcon Glyph="" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" FontSize="16"/>
+                        <TextBlock Text="Stars" Grid.Column="1" VerticalAlignment="Center" FontSize="14"/>
+                        <TextBlock Text="{x:Bind tools:Settings.StarAmount}" Margin="0,0,3,0" Grid.Column="2" VerticalAlignment="Center" FontSize="14" FontFamily="Segoe UI Variable Display" Foreground="{StaticResource AccentBrush1}" FontWeight="SemiBold"/>
+                    </Grid>
+                </ListViewItem>
+                <!-- Unselectable streak item: disabled so it doesn't react to hover or click -->
+                <ListViewItem Style="{StaticResource PDSidebarNavItem}" IsEnabled="False">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <FontIcon Glyph="" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" FontSize="16"/>
+                        <TextBlock Text="Streak" Grid.Column="1" VerticalAlignment="Center" FontSize="14"/>
+                        <TextBlock Text="{x:Bind tools:Settings.CurrentStreak}" Margin="0,0,3,0" Grid.Column="2" VerticalAlignment="Center" FontSize="14" FontFamily="Segoe UI Variable Display" Foreground="{StaticResource AccentBrush1}" FontWeight="SemiBold"/>
+                    </Grid>
+                </ListViewItem>
+                <ListViewItem Style="{StaticResource PDSidebarNavItem}" Tag="Settings">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <FontIcon Glyph="" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" FontSize="16"/>
+                        <TextBlock Text="Settings" Grid.Column="1" VerticalAlignment="Center" FontSize="14"/>
                     </Grid>
                 </ListViewItem>
             </ListView>
