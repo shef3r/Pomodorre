@@ -56,20 +56,41 @@ namespace Pomodorre.Tools
         public static int StarAmount
         {
             get => Get(nameof(StarAmount), 0);
-            set => Set(nameof(StarAmount), value);
+            set { 
+                int _normalizedStars = value < 0 ? 0 : value;
+                Set(nameof(StarAmount), _normalizedStars);
+            }
         }
         public static Dictionary<DateTime, bool> StreakHistory
         {
-            get => Get<Dictionary<DateTime, bool>>(nameof(StreakHistory), new Dictionary<DateTime, bool>());
+            get
+            {
+                var original = Get<Dictionary<DateTime, bool>>(nameof(StreakHistory), new Dictionary<DateTime, bool>());
+                return new Dictionary<DateTime, bool>(original);
+            }
             set => Set(nameof(StreakHistory), value);
+        }
+        public static void AddOrUpdateStreak(DateTime day, bool done)
+        {
+            var history = StreakHistory;
+            history[day.Date] = done;
+            StreakHistory = history;
+        }
+        public static void RemoveStreak(DateTime day)
+        {
+            var history = StreakHistory;
+            if (history.Remove(day.Date))
+            {
+                StreakHistory = history;
+            }
         }
         public static int CurrentStreak
         {
             get
             {
-                var history = StreakHistory.OrderByDescending(x => x.Key);
-                int count = history.TakeWhile(x => x.Value).Count();
-                return count > 0 ? count : 1;
+                var history = StreakHistory.OrderByDescending(x => x.Key).Select(x => x.Value);
+                int count = history.TakeWhile(v => v).Count();
+                return count;
             }
         }
 
@@ -139,6 +160,10 @@ namespace Pomodorre.Tools
 
             RaisePropertyChanged(key);
             RaisePropertyChanged(nameof(EndSessionTimeString));
+            if (key == nameof(StreakHistory))
+            {
+                RaisePropertyChanged(nameof(CurrentStreak));
+            }
         }
 
         private static void RaisePropertyChanged(string propertyName)

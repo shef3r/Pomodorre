@@ -1,21 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.UI.Xaml.Shapes;
-using Windows.ApplicationModel;
+using Microsoft.Windows.AppNotifications;
 using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
 
 namespace Pomodorre.WinUI
 {
@@ -27,10 +13,38 @@ namespace Pomodorre.WinUI
         {
             InitializeComponent();
         }
+
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
+            try
+            {
+                AppNotificationManager.Default.NotificationInvoked += OnNotificationInvoked;
+
+                try
+                {
+                    AppNotificationManager.Default.Register();
+                    Console.WriteLine("[Notifications] Registered successfully.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[Notifications] Registration failed: {ex.Message}");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[App] Failed to initialize notifications: {ex}");
+            }
+
+            // Initialize main window
             _window = new MainWindow();
             _window.Activate();
+        }
+
+        private void OnNotificationInvoked(AppNotificationManager sender, AppNotificationActivatedEventArgs args)
+        {
+            Console.WriteLine("[Notification] Invoked");
+            Console.WriteLine($"Arguments: {args.Argument}");
         }
     }
 }

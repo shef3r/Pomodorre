@@ -14,6 +14,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Pages\DebugPage.xaml" />
     <None Remove="Pages\GoalsPage.xaml" />
     <None Remove="Pages\HistoryPage.xaml" />
     <None Remove="Pages\HomePage.xaml" />
@@ -45,16 +46,21 @@
     <ProjectCapability Include="Msix" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7463" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260101001" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7705" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260209005" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Pomodorre.BackgroundServices\Pomodorre.BackgroundServices.csproj" />
     <ProjectReference Include="..\Pomodorre.Controls\Pomodorre.Controls.csproj" />
     <ProjectReference Include="..\Pomodorre.Converters\Pomodorre.Converters.csproj" />
     <ProjectReference Include="..\Pomodorre.Statistics\Pomodorre.Statistics.csproj" />
     <ProjectReference Include="..\Pomodorre.Styling\Pomodorre.Styling.csproj" />
+    <ProjectReference Include="..\Pomodorre.TimerCore\Pomodorre.TimerCore.csproj" />
     <ProjectReference Include="..\Pomodorre.Tools\Pomodorre.Tools.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Pages\DebugPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Pages\SettingsPage.xaml">
@@ -102,5 +108,13 @@
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+    <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+    <PackageCertificateKeyFile>C:\Users\Bruno\source\repos\Pomodorre\Pomodorre.Packaging\Pomodorre.Packaging_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+    <GenerateTestArtifacts>True</GenerateTestArtifacts>
+    <AppxBundle>Never</AppxBundle>
+    <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
   </PropertyGroup>
 </Project>

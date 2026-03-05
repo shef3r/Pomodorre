@@ -13,31 +13,83 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
+using Pomodorre.TimerCore.Services;
+using Pomodorre.Tools;
+using Pomodorre.WinUI.Pages;
+using Pomodorre.WinUI.Services;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.ViewManagement;
 using WinRT.Interop;
-using Pomodorre.WinUI.Pages;
-using Pomodorre.Tools;
+using System.Runtime.InteropServices;
 
 namespace Pomodorre.WinUI
 {
     public sealed partial class MainWindow : Window
     {
+        private bool _allowClose = false;
+        private IntPtr _hwnd = IntPtr.Zero;
+        private IntPtr _prevWndProc = IntPtr.Zero;
+        private WndProcDelegate? _wndProcDelegate;
+
+        private const int GWL_WNDPROC = -4;
+        private const uint WM_CLOSE = 0x0010;
+
+        private delegate IntPtr WndProcDelegate(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW", SetLastError = true)]
+        private static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern IntPtr CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
         public MainWindow()
         {
             InitializeComponent();
             this.Activated += MainWindow_Activated;
+            PomodoroService.Instance.Tick += OnTick;
 
+            PomodoroService.Instance.SessionCompleted += async (s, completedSession) =>
+            {
+                Console.WriteLine("[UI] SessionCompleted event received");
+
+                await NotificationService.RemoveAsync(completedSession.Id.ToString());
+
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    StartStopSymbol.Symbol = Symbol.Play;
+                    StartStopText.Text = "Start";
+
+                    SessionTimePrefix.Text = "Session will end by";
+                });
+            };
             ApplicationView.PreferredLaunchViewSize = new Size(500, 700);
 
-            ContentFrame.Navigate(typeof(HomePage));
+            ContentFrame.Navigate(typeof(DebugPage));
             try
             {
                 SidebarListView.SelectedIndex = 0;
             }
             catch { }
             AnimateTimePicker();
+        }
+
+        private async void OnTick(object? sender, EventArgs e)
+        {
+            var session = PomodoroService.Instance.CurrentSession;
+            if (session == null) return;
+
+            DispatcherQueue.TryEnqueue(async () =>
+            {
+                Console.WriteLine($"[UI] Updating UI. Remaining={session.Remaining:mm\\:ss}");
+
+                var progress = PomodoroService.Instance.GetProgress();
+
+                await NotificationService.ShowOrUpdateAsync(session, progress);
+
+                SessionTimePrefix.Text = "Block ends in";
+                SessionTimeText.Text = session.Remaining.ToString(@"mm\:ss");
+            });
         }
 
         private void ToggleOverlayForNumberBox(NumberBox source, bool visible)
@@ -62,6 +114,7 @@ namespace Pomodorre.WinUI
 
             Type pageType = tag switch
             {
+                "Debug" => typeof(DebugPage),
                 "Home" => typeof(HomePage),
                 "Goals" => typeof(GoalsPage),
                 "History" => typeof(HistoryPage),
@@ -99,7 +152,51 @@ namespace Pomodorre.WinUI
             {
                 appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
                 appWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
+                // Subclass native window proc to intercept WM_CLOSE and show a XAML ContentDialog
+                _hwnd = hwnd;
+                _wndProcDelegate = new WndProcDelegate(WndProc);
+                _prevWndProc = SetWindowLongPtr(_hwnd, GWL_WNDPROC, Marshal.GetFunctionPointerForDelegate(_wndProcDelegate));
             }
+        }
+
+        private IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
+        {
+            if (msg == WM_CLOSE && !_allowClose)
+            {
+                if (PomodoroService.Instance.CurrentSession == null)
+                    return CallWindowProc(_prevWndProc, hWnd, msg, wParam, lParam);
+
+                DispatcherQueue.TryEnqueue(async () =>
+                {
+                    var dlg = new ContentDialog
+                    {
+                        Title = "Session running",
+                        Content = "A pomodoro session is currently running. Do you want to stop the session and exit?",
+                        PrimaryButtonText = "Exit",
+                        CloseButtonText = "Cancel"
+                    };
+                    
+                    try
+                    {
+                        var root = this.Content as FrameworkElement;
+                        if (root?.XamlRoot != null)
+                            dlg.XamlRoot = root.XamlRoot;
+
+                        var result = await dlg.ShowAsync();
+                        if (result == ContentDialogResult.Primary)
+                        {
+                            PomodoroService.Instance.Stop();
+                            _allowClose = true;
+                            SetWindowLongPtr(_hwnd, GWL_WNDPROC, _prevWndProc);
+                            DispatcherQueue.TryEnqueue(() => this.Close());
+                        }
+                    } catch { }
+                    
+                });
+                return IntPtr.Zero;
+            }
+
+            return CallWindowProc(_prevWndProc, hWnd, msg, wParam, lParam);
         }
 
         private void MinuteToggle_Click(object sender, RoutedEventArgs e)
@@ -224,6 +321,45 @@ namespace Pomodorre.WinUI
             {
                 SessionTimeText.Text = Settings.EndSessionTimeString;
             };
+        }
+
+        private void StartStopButton_Click(object sender, RoutedEventArgs e)
+        {
+            var service = PomodoroService.Instance;
+            var session = service.CurrentSession;
+
+            if (session == null)
+            {
+                Console.WriteLine("[UI] Start pressed");
+
+                service.Start(
+                    blocks: (int)FocusBlockBox.Value,
+                    focusMinutes: (int)FocusBlockMinsBox.Value,
+                    breakMinutes: (int)RestBlockMinsBox.Value);
+
+                StartStopSymbol.Symbol = Symbol.Pause;
+                StartStopText.Text = "Pause";
+                return;
+            }
+
+            if (!session.IsPaused)
+            {
+                Console.WriteLine("[UI] Pause pressed");
+
+                service.Pause();
+
+                StartStopSymbol.Symbol = Symbol.Play;
+                StartStopText.Text = "Resume";
+            }
+            else
+            {
+                Console.WriteLine("[UI] Resume pressed");
+
+                service.Resume();
+
+                StartStopSymbol.Symbol = Symbol.Pause;
+                StartStopText.Text = "Pause";
+            }
         }
     }
 }
