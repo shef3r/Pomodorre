@@ -36,7 +36,6 @@ namespace Pomodorre.WinUI
                 Console.WriteLine($"[App] Failed to initialize notifications: {ex}");
             }
 
-            // Initialize main window
             _window = new MainWindow();
             _window.Activate();
         }

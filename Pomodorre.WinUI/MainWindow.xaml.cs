@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.IO.Pipes;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -16,17 +20,18 @@ using Microsoft.UI.Xaml.Navigation;
 using Pomodorre.TimerCore.Services;
 using Pomodorre.Tools;
 using Pomodorre.WinUI.Pages;
-using Pomodorre.WinUI.Services;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.ViewManagement;
 using WinRT.Interop;
-using System.Runtime.InteropServices;
 
 namespace Pomodorre.WinUI
 {
     public sealed partial class MainWindow : Window
     {
+        private NamedPipeClientStream _pipeClient;
+        private StreamWriter _pipeWriter;
+
         private bool _allowClose = false;
         private IntPtr _hwnd = IntPtr.Zero;
         private IntPtr _prevWndProc = IntPtr.Zero;
@@ -53,7 +58,7 @@ namespace Pomodorre.WinUI
             {
                 Console.WriteLine("[UI] SessionCompleted event received");
 
-                await NotificationService.RemoveAsync(completedSession.Id.ToString());
+                //server handles notifs
 
                 DispatcherQueue.TryEnqueue(() =>
                 {
@@ -85,7 +90,7 @@ namespace Pomodorre.WinUI
 
                 var progress = PomodoroService.Instance.GetProgress();
 
-                await NotificationService.ShowOrUpdateAsync(session, progress);
+                //server handles notifs
 
                 SessionTimePrefix.Text = "Block ends in";
                 SessionTimeText.Text = session.Remaining.ToString(@"mm\:ss");
@@ -139,7 +144,7 @@ namespace Pomodorre.WinUI
         private void FocusBlockMinsBox_GotFocus(object sender, RoutedEventArgs e) => ToggleOverlayForNumberBox(FocusBlockMinsBox, false);
         private void FocusBlockMinsBox_LostFocus(object sender, RoutedEventArgs e) => ToggleOverlayForNumberBox(FocusBlockMinsBox, true);
 
-        private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
+        private async void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
         {
             this.Activated -= MainWindow_Activated;
             this.ExtendsContentIntoTitleBar = true;
@@ -152,11 +157,67 @@ namespace Pomodorre.WinUI
             {
                 appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
                 appWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
-                // Subclass native window proc to intercept WM_CLOSE and show a XAML ContentDialog
                 _hwnd = hwnd;
                 _wndProcDelegate = new WndProcDelegate(WndProc);
                 _prevWndProc = SetWindowLongPtr(_hwnd, GWL_WNDPROC, Marshal.GetFunctionPointerForDelegate(_wndProcDelegate));
             }
+
+            await StartBackgroundServer();
+        }
+
+        private async Task StartBackgroundServer()
+        {
+            try
+            {
+                string serverExe = Path.Combine(AppContext.BaseDirectory, "Pomodorre.BackgroundWorker.exe");
+                if (!File.Exists(serverExe)) return;
+
+                var existing = Process.GetProcessesByName("Pomodorre.BackgroundWorker");
+                foreach (var p in existing)
+                {
+                    try { p.Kill(); } catch { }
+                }
+
+                string myPid = Process.GetCurrentProcess().Id.ToString();
+
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = serverExe,
+                    Arguments = myPid,
+                    WorkingDirectory = AppContext.BaseDirectory,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                });
+
+                await Task.Delay(2000); // daj mu sie wlaczyc
+
+                _pipeClient = new NamedPipeClientStream(".", "PomodorrePipe", PipeDirection.InOut, PipeOptions.Asynchronous);
+                await _pipeClient.ConnectAsync(10000);
+
+                _pipeWriter = new StreamWriter(_pipeClient) { AutoFlush = true };
+                await _pipeWriter.WriteLineAsync("CLIENT_CONNECTED");
+
+                _ = ListenToServer();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Client Error]: {ex.Message}");
+            }
+        }
+
+        private async Task ListenToServer()
+        {
+            using var reader = new StreamReader(_pipeClient);
+            try
+            {
+                while (_pipeClient.IsConnected)
+                {
+                    var response = await reader.ReadLineAsync();
+                    if (response == null) break;
+                    Debug.WriteLine($"[Server Says]: {response}");
+                }
+            }
+            catch (Exception ex) { Debug.WriteLine($"[Client Listen Error]: {ex.Message}"); }
         }
 
         private IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
