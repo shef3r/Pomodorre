@@ -17,6 +17,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
+using Pomodorre.TimerCore;
 using Pomodorre.TimerCore.Services;
 using Pomodorre.Tools;
 using Pomodorre.WinUI.Pages;
@@ -31,6 +32,9 @@ namespace Pomodorre.WinUI
     {
         private NamedPipeClientStream _pipeClient;
         private StreamWriter _pipeWriter;
+
+        private bool _isSessionActive = false;
+        private bool _isPaused = false;
 
         private bool _allowClose = false;
         private IntPtr _hwnd = IntPtr.Zero;
@@ -52,22 +56,7 @@ namespace Pomodorre.WinUI
         {
             InitializeComponent();
             this.Activated += MainWindow_Activated;
-            PomodoroService.Instance.Tick += OnTick;
 
-            PomodoroService.Instance.SessionCompleted += async (s, completedSession) =>
-            {
-                Console.WriteLine("[UI] SessionCompleted event received");
-
-                //server handles notifs
-
-                DispatcherQueue.TryEnqueue(() =>
-                {
-                    StartStopSymbol.Symbol = Symbol.Play;
-                    StartStopText.Text = "Start";
-
-                    SessionTimePrefix.Text = "Session will end by";
-                });
-            };
             ApplicationView.PreferredLaunchViewSize = new Size(500, 700);
 
             ContentFrame.Navigate(typeof(DebugPage));
@@ -76,25 +65,8 @@ namespace Pomodorre.WinUI
                 SidebarListView.SelectedIndex = 0;
             }
             catch { }
+
             AnimateTimePicker();
-        }
-
-        private async void OnTick(object? sender, EventArgs e)
-        {
-            var session = PomodoroService.Instance.CurrentSession;
-            if (session == null) return;
-
-            DispatcherQueue.TryEnqueue(async () =>
-            {
-                Console.WriteLine($"[UI] Updating UI. Remaining={session.Remaining:mm\\:ss}");
-
-                var progress = PomodoroService.Instance.GetProgress();
-
-                //server handles notifs
-
-                SessionTimePrefix.Text = "Block ends in";
-                SessionTimeText.Text = session.Remaining.ToString(@"mm\:ss");
-            });
         }
 
         private void ToggleOverlayForNumberBox(NumberBox source, bool visible)
@@ -147,17 +119,20 @@ namespace Pomodorre.WinUI
         private async void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
         {
             this.Activated -= MainWindow_Activated;
+
             this.ExtendsContentIntoTitleBar = true;
             this.SetTitleBar(TitleBar);
 
             var hwnd = WindowNative.GetWindowHandle(this);
             var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
             var appWindow = AppWindow.GetFromWindowId(windowId);
+
             if (appWindow is not null)
             {
                 appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
                 appWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
                 _hwnd = hwnd;
+
                 _wndProcDelegate = new WndProcDelegate(WndProc);
                 _prevWndProc = SetWindowLongPtr(_hwnd, GWL_WNDPROC, Marshal.GetFunctionPointerForDelegate(_wndProcDelegate));
             }
@@ -169,62 +144,103 @@ namespace Pomodorre.WinUI
         {
             try
             {
-                string serverExe = Path.Combine(AppContext.BaseDirectory, "Pomodorre.BackgroundWorker.exe");
-                if (!File.Exists(serverExe)) return;
-
                 var existing = Process.GetProcessesByName("Pomodorre.BackgroundWorker");
-                foreach (var p in existing)
+                if (existing.Length == 0)
                 {
-                    try { p.Kill(); } catch { }
+                    string serverExe = Path.Combine(AppContext.BaseDirectory, "Pomodorre.BackgroundWorker.exe");
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = serverExe,
+                        Arguments = Process.GetCurrentProcess().Id.ToString(),
+                        WorkingDirectory = AppContext.BaseDirectory,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    });
+                    await Task.Delay(500);
                 }
 
-                string myPid = Process.GetCurrentProcess().Id.ToString();
-
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = serverExe,
-                    Arguments = myPid,
-                    WorkingDirectory = AppContext.BaseDirectory,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                });
-
-                await Task.Delay(2000); // daj mu sie wlaczyc
-
                 _pipeClient = new NamedPipeClientStream(".", "PomodorrePipe", PipeDirection.InOut, PipeOptions.Asynchronous);
-                await _pipeClient.ConnectAsync(10000);
-
+                await _pipeClient.ConnectAsync(5000);
                 _pipeWriter = new StreamWriter(_pipeClient) { AutoFlush = true };
-                await _pipeWriter.WriteLineAsync("CLIENT_CONNECTED");
 
                 _ = ListenToServer();
+
+                await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_STATUS);
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[Client Error]: {ex.Message}");
-            }
+            catch (Exception ex) { Debug.WriteLine($"Pipe Error: {ex.Message}"); }
         }
 
         private async Task ListenToServer()
         {
             using var reader = new StreamReader(_pipeClient);
-            try
+            while (_pipeClient.IsConnected)
             {
-                while (_pipeClient.IsConnected)
+                var line = await reader.ReadLineAsync();
+                if (string.IsNullOrEmpty(line)) continue;
+
+                var parts = line.Split('|');
+                DispatcherQueue.TryEnqueue(() =>
                 {
-                    var response = await reader.ReadLineAsync();
-                    if (response == null) break;
-                    Debug.WriteLine($"[Server Says]: {response}");
-                }
+                    switch (parts[0])
+                    {
+                        case PipeProtocol.EVENT_STATUS:
+                            // STATUS_RES|IsActive|IsPaused|Time|Progress
+                            _isSessionActive = bool.Parse(parts[1]);
+                            _isPaused = bool.Parse(parts[2]);
+                            UpdateStartButtonUI(_isSessionActive, _isPaused);
+
+                            if (_isSessionActive)
+                            {
+                                SessionTimePrefix.Text = "Block ends in";
+                                SessionTimeText.Text = parts[3];
+                            }
+                            else
+                            {
+                                SessionTimePrefix.Text = "Session will end by";
+                                SessionTimeText.Text = Settings.EndSessionTimeString;
+                            }
+                            break;
+
+                        case PipeProtocol.EVENT_TICK:
+                            _isSessionActive = true;
+                            SessionTimePrefix.Text = "Block ends in";
+                            SessionTimeText.Text = parts[1];
+                            // Progress bar albo tego typu inne
+                            break;
+
+                        case PipeProtocol.EVENT_COMPLETED:
+                            _isSessionActive = false;
+                            SessionTimePrefix.Text = "Session will end by";
+                            SessionTimeText.Text = Settings.EndSessionTimeString;
+                            UpdateStartButtonUI(false, false);
+                            break;
+                    }
+                });
             }
-            catch (Exception ex) { Debug.WriteLine($"[Client Listen Error]: {ex.Message}"); }
+        }
+
+        private void UpdateStartButtonUI(bool active, bool paused)
+        {
+            _isSessionActive = active;
+            _isPaused = paused;
+
+            if (!active)
+            {
+                StartStopSymbol.Symbol = Symbol.Play;
+                StartStopText.Text = "Start";
+            }
+            else
+            {
+                StartStopSymbol.Symbol = paused ? Symbol.Play : Symbol.Pause;
+                StartStopText.Text = paused ? "Resume" : "Pause";
+            }
         }
 
         private IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
         {
             if (msg == WM_CLOSE && !_allowClose)
             {
-                if (PomodoroService.Instance.CurrentSession == null)
+                if (!_isSessionActive)
                     return CallWindowProc(_prevWndProc, hWnd, msg, wParam, lParam);
 
                 DispatcherQueue.TryEnqueue(async () =>
@@ -232,31 +248,33 @@ namespace Pomodorre.WinUI
                     var dlg = new ContentDialog
                     {
                         Title = "Session running",
-                        Content = "A pomodoro session is currently running. Do you want to stop the session and exit?",
-                        PrimaryButtonText = "Exit",
-                        CloseButtonText = "Cancel"
+                        Content = "A session is running in the background. Stop it and exit?",
+                        PrimaryButtonText = "Exit & Stop",
+                        CloseButtonText = "Keep Running & Close UI"
                     };
-                    
+
                     try
                     {
                         var root = this.Content as FrameworkElement;
-                        if (root?.XamlRoot != null)
-                            dlg.XamlRoot = root.XamlRoot;
+                        if (root?.XamlRoot != null) dlg.XamlRoot = root.XamlRoot;
 
                         var result = await dlg.ShowAsync();
                         if (result == ContentDialogResult.Primary)
                         {
-                            PomodoroService.Instance.Stop();
+                            await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_STOP);
                             _allowClose = true;
-                            SetWindowLongPtr(_hwnd, GWL_WNDPROC, _prevWndProc);
-                            DispatcherQueue.TryEnqueue(() => this.Close());
+                            this.Close();
                         }
-                    } catch { }
-                    
+                        else
+                        {
+                            _allowClose = true;
+                            this.Close();
+                        }
+                    }
+                    catch { }
                 });
                 return IntPtr.Zero;
             }
-
             return CallWindowProc(_prevWndProc, hWnd, msg, wParam, lParam);
         }
 
@@ -274,10 +292,9 @@ namespace Pomodorre.WinUI
             var root = this.Content as FrameworkElement;
             var minuteContent = root?.FindName("MinuteContent") as FrameworkElement;
             var chevron = root?.FindName("MinuteToggleChevronTransform") as RotateTransform;
-            if (minuteContent is null)
-                return;
 
-            double desiredHeight;
+            if (minuteContent is null) return;
+
             if (!Settings.IsTimePickerCollapsed)
             {
                 minuteContent.Visibility = Visibility.Visible;
@@ -324,27 +341,27 @@ namespace Pomodorre.WinUI
 
             if (RootGrid.ActualHeight < 693 || (RootGrid.ActualHeight >= 693 && SidebarListView.Opacity == 0))
             {
-                var opacityAnim2 = new DoubleAnimation
+                var sideAnim = new DoubleAnimation
                 {
                     From = SidebarListView.Opacity,
                     To = Settings.IsTimePickerCollapsed ? 1 : 0,
                     Duration = duration.Subtract(new Duration(TimeSpan.FromMilliseconds(100))),
                     EasingFunction = easing
                 };
-                Storyboard.SetTarget(opacityAnim2, SidebarListView);
-                Storyboard.SetTargetProperty(opacityAnim2, "Opacity");
-                sb.Children.Add(opacityAnim2);
+                Storyboard.SetTarget(sideAnim, SidebarListView);
+                Storyboard.SetTargetProperty(sideAnim, "Opacity");
+                sb.Children.Add(sideAnim);
 
-                var opacityAnim3 = new DoubleAnimation
+                var sideLowerAnim = new DoubleAnimation
                 {
                     From = SidebarListViewLower.Opacity,
                     To = Settings.IsTimePickerCollapsed ? 1 : 0,
                     Duration = duration.Subtract(new Duration(TimeSpan.FromMilliseconds(100))),
                     EasingFunction = easing
                 };
-                Storyboard.SetTarget(opacityAnim3, SidebarListViewLower);
-                Storyboard.SetTargetProperty(opacityAnim3, "Opacity");
-                sb.Children.Add(opacityAnim3);
+                Storyboard.SetTarget(sideLowerAnim, SidebarListViewLower);
+                Storyboard.SetTargetProperty(sideLowerAnim, "Opacity");
+                sb.Children.Add(sideLowerAnim);
             }
 
             var rotateAnim = new DoubleAnimation
@@ -368,7 +385,6 @@ namespace Pomodorre.WinUI
                 {
                     minuteContent.Height = double.NaN;
                 }
-
                 minuteContent.Opacity = 1;
             };
 
@@ -384,42 +400,27 @@ namespace Pomodorre.WinUI
             };
         }
 
-        private void StartStopButton_Click(object sender, RoutedEventArgs e)
+        private async void StartStopButton_Click(object sender, RoutedEventArgs e)
         {
-            var service = PomodoroService.Instance;
-            var session = service.CurrentSession;
+            if (_pipeWriter == null) return;
 
-            if (session == null)
+            if (!_isSessionActive)
             {
-                Console.WriteLine("[UI] Start pressed");
+                string cmd = $"{PipeProtocol.CMD_START}|{(int)FocusBlockBox.Value}|{(int)FocusBlockMinsBox.Value}|{(int)RestBlockMinsBox.Value}";
+                await _pipeWriter.WriteLineAsync(cmd);
 
-                service.Start(
-                    blocks: (int)FocusBlockBox.Value,
-                    focusMinutes: (int)FocusBlockMinsBox.Value,
-                    breakMinutes: (int)RestBlockMinsBox.Value);
-
-                StartStopSymbol.Symbol = Symbol.Pause;
-                StartStopText.Text = "Pause";
-                return;
-            }
-
-            if (!session.IsPaused)
-            {
-                Console.WriteLine("[UI] Pause pressed");
-
-                service.Pause();
-
-                StartStopSymbol.Symbol = Symbol.Play;
-                StartStopText.Text = "Resume";
+                UpdateStartButtonUI(true, false);
             }
             else
             {
-                Console.WriteLine("[UI] Resume pressed");
-
-                service.Resume();
-
-                StartStopSymbol.Symbol = Symbol.Pause;
-                StartStopText.Text = "Pause";
+                if (!_isPaused)
+                {
+                    await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_PAUSE);
+                }
+                else
+                {
+                    await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_RESUME);
+                }
             }
         }
     }

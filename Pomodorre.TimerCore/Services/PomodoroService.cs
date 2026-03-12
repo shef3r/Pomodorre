@@ -23,7 +23,14 @@ namespace Pomodorre.TimerCore.Services
 
         public PomodoroSession? CurrentSession { get; private set; }
 
-        private PomodoroService() { }
+        private PomodoroService() {
+            string currentProcess = Process.GetCurrentProcess().ProcessName;
+
+            if (currentProcess.Equals("Pomodorre.WinUI", StringComparison.OrdinalIgnoreCase))
+            {
+                Environment.FailFast("Nie ma tak, komunikacja tylko przez serwer");
+            }
+        }
 
         public void Start(int blocks, int focusMinutes, int breakMinutes)
         {

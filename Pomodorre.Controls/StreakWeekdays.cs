@@ -23,7 +23,6 @@ namespace Pomodorre.Controls
             set => SetValue(CurrentStreakWeekdayProperty, value);
         }
 
-        // IsChecked dependency properties
         public static readonly DependencyProperty Is1CheckedProperty =
             DependencyProperty.Register(nameof(Is1Checked), typeof(bool), typeof(StreakWeekdays), new PropertyMetadata(false));
         public bool Is1Checked { get => (bool)GetValue(Is1CheckedProperty); set => SetValue(Is1CheckedProperty, value); }
@@ -52,7 +51,6 @@ namespace Pomodorre.Controls
             DependencyProperty.Register(nameof(Is7Checked), typeof(bool), typeof(StreakWeekdays), new PropertyMetadata(false));
         public bool Is7Checked { get => (bool)GetValue(Is7CheckedProperty); set => SetValue(Is7CheckedProperty, value); }
 
-        // Radio name dependency properties
         public static readonly DependencyProperty Radio1NameProperty =
             DependencyProperty.Register(nameof(Radio1Name), typeof(string), typeof(StreakWeekdays), new PropertyMetadata("Mon"));
         public string Radio1Name { get => (string)GetValue(Radio1NameProperty); set => SetValue(Radio1NameProperty, value); }

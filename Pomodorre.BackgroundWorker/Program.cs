@@ -20,7 +20,6 @@ class Program
         if (args.Length > 0 && int.TryParse(args[0], out int pid))
         {
             _parentPid = pid;
-            StartParentWatcher(_parentPid);
         }
         ApplicationConfiguration.Initialize();
         InitializeTray();
@@ -87,26 +86,17 @@ class Program
                 using var reader = new StreamReader(serverPipe);
                 using var writer = new StreamWriter(serverPipe) { AutoFlush = true };
 
+                var handler = new PipeServerHandler(writer);
+
                 while (serverPipe.IsConnected && !_cts.Token.IsCancellationRequested)
                 {
                     var line = await reader.ReadLineAsync();
-                    if (line == "PING") await writer.WriteLineAsync("PONG");
+                    await handler.HandleCommand(line);
                 }
+
+                handler.Dispose();
             }
             catch { await Task.Delay(1000); }
         }
-    }
-
-    private static void StartParentWatcher(int pid)
-    {
-        _ = Task.Run(async () => {
-            try
-            {
-                var parent = Process.GetProcessById(pid);
-                parent.WaitForExit();
-                Environment.Exit(0);
-            }
-            catch { Environment.Exit(0); }
-        });
     }
 }

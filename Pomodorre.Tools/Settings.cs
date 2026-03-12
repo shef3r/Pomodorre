@@ -41,16 +41,11 @@ namespace Pomodorre.Tools
             {
                 try
                 {
-                    var totalMinutes = checked((FocusBlockMinutes * FocusBlocks) + (RestBlockMinutes * (FocusBlocks - 1)));
+                    var totalMinutes = (FocusBlockMinutes * FocusBlocks) + (RestBlockMinutes * (FocusBlocks - 1));
                     var end = DateTime.Now.AddMinutes(totalMinutes);
-                    var pattern = DateTimeFormatInfo.CurrentInfo?.ShortTimePattern ?? CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern;
-                    return end.ToString(pattern);
+                    return end.ToString("HH:mm");
                 }
-                catch
-                {
-                    var pattern = DateTimeFormatInfo.CurrentInfo?.ShortTimePattern ?? CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern;
-                    return DateTime.Now.ToString(pattern);
-                }
+                catch { return "--:--"; }
             }
         }
         public static int StarAmount
