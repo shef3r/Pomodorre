@@ -1,102 +1,105 @@
-﻿using System;
+﻿using System.IO.Pipes;
 using System.Diagnostics;
-using System.IO;
-using System.IO.Pipes;
-using System.Windows.Forms;
-using Microsoft.Windows.AppNotifications;
-using Microsoft.Windows.AppNotifications.Builder;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pomodorre.BackgroundWorker;
 
 class Program
 {
     private static CancellationTokenSource _cts = new();
-    private static NotifyIcon? _trayIcon;
     private static int _parentPid = -1;
 
-    [STAThread]
     static void Main(string[] args)
     {
+        // Parse parent PID if provided (optional)
         if (args.Length > 0 && int.TryParse(args[0], out int pid))
         {
             _parentPid = pid;
         }
-        ApplicationConfiguration.Initialize();
-        InitializeTray();
-        _ = Task.Run(() => RunPipeServer());
 
-        Application.Run();
-    }
-
-    private static void InitializeTray()
-    {
-        _trayIcon = new NotifyIcon
+        // Start monitoring the parent process (if PID known)
+        if (_parentPid != -1)
         {
-            Icon = SystemIcons.Application,
-            Text = "Pomodorre Background Worker",
-            Visible = true
-        };
-
-        var menu = new ContextMenuStrip();
-
-        menu.Items.Add("Open App", null, (s, e) => {
-            FocusParent();
-        });
-
-        menu.Items.Add("-");
-
-        menu.Items.Add("Exit Server", null, (s, e) => {
-            _cts.Cancel();
-            _trayIcon.Visible = false;
-            Application.Exit();
-        });
-
-        _trayIcon.ContextMenuStrip = menu;
-    }
-
-    private static void FocusParent()
-    {
-        if (_parentPid == -1) return;
-        try
-        {
-            var proc = Process.GetProcessById(_parentPid);
-            IntPtr handle = proc.MainWindowHandle;
-            if (handle != IntPtr.Zero)
-            {
-                SetForegroundWindow(handle);
-            }
+            Task.Run(() => MonitorParentProcess(_cts.Token));
         }
-        catch { }
+
+        // Run the pipe server on the main thread
+        RunPipeServer(_cts.Token);
     }
 
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    private static extern bool SetForegroundWindow(IntPtr hWnd);
-
-    private static async Task RunPipeServer()
+    private static async void RunPipeServer(CancellationToken cancellationToken)
     {
-        while (!_cts.Token.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
-                using var serverPipe = new NamedPipeServerStream("PomodorrePipe",
-                    PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+                using var serverPipe = new NamedPipeServerStream(
+                    "PomodorrePipe",
+                    PipeDirection.InOut,
+                    1,
+                    PipeTransmissionMode.Byte,
+                    PipeOptions.None   // synchronous, no need for message pump
+                );
 
-                await serverPipe.WaitForConnectionAsync(_cts.Token);
+                // Wait for a connection (blocks until client connects)
+                serverPipe.WaitForConnection();
 
                 using var reader = new StreamReader(serverPipe);
                 using var writer = new StreamWriter(serverPipe) { AutoFlush = true };
 
                 var handler = new PipeServerHandler(writer);
 
-                while (serverPipe.IsConnected && !_cts.Token.IsCancellationRequested)
+                // Process commands while pipe is connected
+                while (serverPipe.IsConnected && !cancellationToken.IsCancellationRequested)
                 {
-                    var line = await reader.ReadLineAsync();
+                    string? line = reader.ReadLine();
+                    if (line == null) break;
+
+                    // Check for shutdown command
+                    if (line == "shutdown")
+                    {
+                        _cts.Cancel();
+                        break;
+                    }
+
+                    // Otherwise, let the handler process it
                     await handler.HandleCommand(line);
                 }
 
                 handler.Dispose();
             }
-            catch { await Task.Delay(1000); }
+            catch (Exception)
+            {
+                // On error, wait a bit before retrying
+                Thread.Sleep(1000);
+            }
+        }
+    }
+
+    private static void MonitorParentProcess(CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                // Check if the parent process still exists
+                var parent = Process.GetProcessById(_parentPid);
+                if (parent.HasExited)
+                {
+                    _cts.Cancel();
+                    break;
+                }
+            }
+            catch (ArgumentException)
+            {
+                // Process doesn't exist (already gone)
+                _cts.Cancel();
+                break;
+            }
+
+            // Wait 5 seconds before checking again
+            cancellationToken.WaitHandle.WaitOne(5000);
         }
     }
 }
