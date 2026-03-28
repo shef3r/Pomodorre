@@ -1,28 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.IO.Pipes;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading.Tasks;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
-using Microsoft.UI.Xaml.Navigation;
 using Pomodorre.TimerCore;
 using Pomodorre.TimerCore.Services;
 using Pomodorre.Tools;
 using Pomodorre.WinUI.Pages;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.IO.Pipes;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.ViewManagement;
 using WinRT.Interop;
 
@@ -32,17 +25,21 @@ namespace Pomodorre.WinUI
     {
         private NamedPipeClientStream _pipeClient;
         private StreamWriter _pipeWriter;
-
         private bool _isSessionActive = false;
         private bool _isPaused = false;
-
         private bool _allowClose = false;
         private IntPtr _hwnd = IntPtr.Zero;
         private IntPtr _prevWndProc = IntPtr.Zero;
         private WndProcDelegate? _wndProcDelegate;
+        private bool _isReconnecting = false;
+        private CancellationTokenSource _reconnectCts = new CancellationTokenSource();
+        private Task _heartbeatTask;
+        private bool _disposed = false;
 
         private const int GWL_WNDPROC = -4;
         private const uint WM_CLOSE = 0x0010;
+        private const int HEARTBEAT_INTERVAL_MS = 5000;
+        private const int HEARTBEAT_TIMEOUT_MS = 10000;
 
         private delegate IntPtr WndProcDelegate(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
@@ -56,17 +53,26 @@ namespace Pomodorre.WinUI
         {
             InitializeComponent();
             this.Activated += MainWindow_Activated;
+            this.Closed += MainWindow_Closed;
 
             ApplicationView.PreferredLaunchViewSize = new Size(500, 700);
-
             ContentFrame.Navigate(typeof(DebugPage));
-            try
-            {
-                SidebarListView.SelectedIndex = 0;
-            }
-            catch { }
-
+            try { SidebarListView.SelectedIndex = 0; } catch { }
             AnimateTimePicker();
+        }
+
+        private void MainWindow_Closed(object sender, WindowEventArgs args)
+        {
+            _reconnectCts.Cancel();
+            CleanupPipe();
+        }
+
+        private void CleanupPipe()
+        {
+            _pipeWriter?.Dispose();
+            _pipeClient?.Dispose();
+            _pipeWriter = null;
+            _pipeClient = null;
         }
 
         private void ToggleOverlayForNumberBox(NumberBox source, bool visible)
@@ -76,7 +82,7 @@ namespace Pomodorre.WinUI
             {
                 foreach (var child in parentGrid.Children)
                 {
-                    if (child is TextBlock tb && tb.IsHitTestVisible == false)
+                    if (child is TextBlock tb && !tb.IsHitTestVisible)
                     {
                         tb.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
                     }
@@ -101,7 +107,7 @@ namespace Pomodorre.WinUI
                 _ => null
             };
 
-            if (pageType is not null && ContentFrame.Content?.GetType() != pageType)
+            if (pageType != null && ContentFrame.Content?.GetType() != pageType)
             {
                 ContentFrame.Navigate(pageType);
             }
@@ -109,10 +115,8 @@ namespace Pomodorre.WinUI
 
         private void FocusBlockBox_GotFocus(object sender, RoutedEventArgs e) => ToggleOverlayForNumberBox(FocusBlockBox, false);
         private void FocusBlockBox_LostFocus(object sender, RoutedEventArgs e) => ToggleOverlayForNumberBox(FocusBlockBox, true);
-
         private void RestBlockMinsBox_GotFocus(object sender, RoutedEventArgs e) => ToggleOverlayForNumberBox(RestBlockMinsBox, false);
         private void RestBlockMinsBox_LostFocus(object sender, RoutedEventArgs e) => ToggleOverlayForNumberBox(RestBlockMinsBox, true);
-
         private void FocusBlockMinsBox_GotFocus(object sender, RoutedEventArgs e) => ToggleOverlayForNumberBox(FocusBlockMinsBox, false);
         private void FocusBlockMinsBox_LostFocus(object sender, RoutedEventArgs e) => ToggleOverlayForNumberBox(FocusBlockMinsBox, true);
 
@@ -127,7 +131,7 @@ namespace Pomodorre.WinUI
             var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
             var appWindow = AppWindow.GetFromWindowId(windowId);
 
-            if (appWindow is not null)
+            if (appWindow != null)
             {
                 appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
                 appWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
@@ -140,82 +144,209 @@ namespace Pomodorre.WinUI
             await StartBackgroundServer();
         }
 
-        private async Task StartBackgroundServer()
+        private async Task StartBackgroundServer(int retryCount = 0)
         {
+            const int maxRetries = 3;
             try
             {
-                var existing = Process.GetProcessesByName("Pomodorre.BackgroundWorker");
-                if (existing.Length == 0)
+                CleanupPipe();
+
+                // Ensure the background worker process is running and responsive
+                if (!IsBackgroundWorkerRunning())
                 {
-                    string serverExe = Path.Combine(AppContext.BaseDirectory, "Pomodorre.BackgroundWorker.exe");
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = serverExe,
-                        Arguments = Process.GetCurrentProcess().Id.ToString(),
-                        WorkingDirectory = AppContext.BaseDirectory,
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    });
-                    await Task.Delay(500);
+                    StartBackgroundWorkerProcess();
+                    await Task.Delay(2000);
                 }
 
                 _pipeClient = new NamedPipeClientStream(".", "PomodorrePipe", PipeDirection.InOut, PipeOptions.Asynchronous);
                 await _pipeClient.ConnectAsync(5000);
                 _pipeWriter = new StreamWriter(_pipeClient) { AutoFlush = true };
 
+                // Start listening for server messages
                 _ = ListenToServer();
 
+                // Start heartbeat task
+                _heartbeatTask = HeartbeatAsync(_reconnectCts.Token);
+
+                // Request current status
                 await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_STATUS);
             }
-            catch (Exception ex) { Debug.WriteLine($"Pipe Error: {ex.Message}"); }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Pipe connection failed (attempt {retryCount + 1}): {ex.Message}");
+                if (retryCount < maxRetries)
+                {
+                    await Task.Delay(1000);
+                    await StartBackgroundServer(retryCount + 1);
+                }
+                else
+                {
+                    // Schedule a full reconnect after a delay
+                    _ = Task.Delay(5000).ContinueWith(_ => DispatcherQueue.TryEnqueue(async () =>
+                    {
+                        if (!_disposed) await ReconnectBackgroundWorker();
+                    }));
+                }
+            }
+        }
+
+        private bool IsBackgroundWorkerRunning()
+        {
+            try
+            {
+                var processes = Process.GetProcessesByName("Pomodorre.BackgroundWorker");
+                if (processes.Length == 0) return false;
+
+                // Check if any process is responsive (optional)
+                foreach (var proc in processes)
+                {
+                    if (!proc.HasExited) return true;
+                }
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private void StartBackgroundWorkerProcess()
+        {
+            try
+            {
+                // Kill any existing worker processes that might be hung
+                foreach (var proc in Process.GetProcessesByName("Pomodorre.BackgroundWorker"))
+                {
+                    try { proc.Kill(); } catch { }
+                }
+
+                string serverExe = Path.Combine(AppContext.BaseDirectory, "Pomodorre.BackgroundWorker.exe");
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = serverExe,
+                    Arguments = Process.GetCurrentProcess().Id.ToString(),
+                    WorkingDirectory = AppContext.BaseDirectory,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to start worker: {ex.Message}");
+            }
         }
 
         private async Task ListenToServer()
         {
-            using var reader = new StreamReader(_pipeClient);
-            while (_pipeClient.IsConnected)
+            try
             {
-                var line = await reader.ReadLineAsync();
-                if (string.IsNullOrEmpty(line)) continue;
-
-                var parts = line.Split('|');
-                DispatcherQueue.TryEnqueue(() =>
+                using var reader = new StreamReader(_pipeClient);
+                while (_pipeClient.IsConnected && !_reconnectCts.Token.IsCancellationRequested)
                 {
-                    switch (parts[0])
-                    {
-                        case PipeProtocol.EVENT_STATUS:
-                            // STATUS_RES|IsActive|IsPaused|Time|Progress
-                            _isSessionActive = bool.Parse(parts[1]);
-                            _isPaused = bool.Parse(parts[2]);
-                            UpdateStartButtonUI(_isSessionActive, _isPaused);
+                    var line = await reader.ReadLineAsync();
+                    if (string.IsNullOrEmpty(line)) continue;
 
-                            if (_isSessionActive)
-                            {
+                    var parts = line.Split('|');
+                    DispatcherQueue.TryEnqueue(() =>
+                    {
+                        switch (parts[0])
+                        {
+                            case PipeProtocol.EVENT_STATUS:
+                                _isSessionActive = bool.Parse(parts[1]);
+                                _isPaused = bool.Parse(parts[2]);
+                                UpdateStartButtonUI(_isSessionActive, _isPaused);
+
+                                if (_isSessionActive)
+                                {
+                                    SessionTimePrefix.Text = "Block ends in";
+                                    SessionTimeText.Text = parts[3];
+                                }
+                                else
+                                {
+                                    SessionTimePrefix.Text = "Session will end by";
+                                    SessionTimeText.Text = Settings.EndSessionTimeString;
+                                }
+                                break;
+
+                            case PipeProtocol.EVENT_TICK:
+                                _isSessionActive = true;
                                 SessionTimePrefix.Text = "Block ends in";
-                                SessionTimeText.Text = parts[3];
-                            }
-                            else
-                            {
+                                SessionTimeText.Text = parts[1];
+                                break;
+
+                            case PipeProtocol.EVENT_COMPLETED:
+                                _isSessionActive = false;
                                 SessionTimePrefix.Text = "Session will end by";
                                 SessionTimeText.Text = Settings.EndSessionTimeString;
-                            }
-                            break;
+                                UpdateStartButtonUI(false, false);
+                                break;
+                        }
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Pipe reading error: {ex.Message}");
+            }
+            finally
+            {
+                if (!_reconnectCts.Token.IsCancellationRequested)
+                {
+                    DispatcherQueue.TryEnqueue(async () => await ReconnectBackgroundWorker());
+                }
+            }
+        }
 
-                        case PipeProtocol.EVENT_TICK:
-                            _isSessionActive = true;
-                            SessionTimePrefix.Text = "Block ends in";
-                            SessionTimeText.Text = parts[1];
-                            // Progress bar albo tego typu inne
-                            break;
+        private async Task HeartbeatAsync(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    await Task.Delay(HEARTBEAT_INTERVAL_MS, cancellationToken);
+                    if (_pipeWriter == null || _pipeClient == null || !_pipeClient.IsConnected)
+                        continue;
 
-                        case PipeProtocol.EVENT_COMPLETED:
-                            _isSessionActive = false;
-                            SessionTimePrefix.Text = "Session will end by";
-                            SessionTimeText.Text = Settings.EndSessionTimeString;
-                            UpdateStartButtonUI(false, false);
-                            break;
-                    }
-                });
+                    await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_STATUS);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Heartbeat failed: {ex.Message}");
+                    DispatcherQueue.TryEnqueue(async () => await ReconnectBackgroundWorker());
+                    break;
+                }
+            }
+        }
+
+        private async Task ReconnectBackgroundWorker()
+        {
+            if (_isReconnecting) return;
+            _isReconnecting = true;
+
+            try
+            {
+                Debug.WriteLine("Attempting to reconnect background worker...");
+                _reconnectCts.Cancel();
+                _reconnectCts = new CancellationTokenSource();
+                CleanupPipe();
+                await Task.Delay(2000);
+                await StartBackgroundServer();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Reconnect failed: {ex.Message}");
+                _ = Task.Delay(5000).ContinueWith(_ => DispatcherQueue.TryEnqueue(async () =>
+                {
+                    if (!_disposed) await ReconnectBackgroundWorker();
+                }));
+            }
+            finally
+            {
+                _isReconnecting = false;
             }
         }
 
@@ -228,11 +359,23 @@ namespace Pomodorre.WinUI
             {
                 StartStopSymbol.Symbol = Symbol.Play;
                 StartStopText.Text = "Start";
+                FocusBlockBox.IsEnabled = true;
+                FocusBlockMinsBox.IsEnabled = true;
+                FocusBlockOverlay.Opacity = 1;
+                FocusBlockMinsOverlay.Opacity = 1;
+                RestBlockMinsBox.IsEnabled = true;
+                RestBlockOverlay.Opacity = 1;
             }
             else
             {
                 StartStopSymbol.Symbol = paused ? Symbol.Play : Symbol.Pause;
                 StartStopText.Text = paused ? "Resume" : "Pause";
+                FocusBlockBox.IsEnabled = false;
+                FocusBlockMinsBox.IsEnabled = false;
+                FocusBlockOverlay.Opacity = 0.4;
+                FocusBlockMinsOverlay.Opacity = 0.4;
+                RestBlockMinsBox.IsEnabled = false;
+                RestBlockOverlay.Opacity = 0.4;
             }
         }
 
@@ -261,7 +404,8 @@ namespace Pomodorre.WinUI
                         var result = await dlg.ShowAsync();
                         if (result == ContentDialogResult.Primary)
                         {
-                            await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_STOP);
+                            if (_pipeWriter != null)
+                                await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_STOP);
                             _allowClose = true;
                             this.Close();
                         }
@@ -404,23 +548,28 @@ namespace Pomodorre.WinUI
         {
             if (_pipeWriter == null) return;
 
-            if (!_isSessionActive)
+            try
             {
-                string cmd = $"{PipeProtocol.CMD_START}|{(int)FocusBlockBox.Value}|{(int)FocusBlockMinsBox.Value}|{(int)RestBlockMinsBox.Value}";
-                await _pipeWriter.WriteLineAsync(cmd);
-
-                UpdateStartButtonUI(true, false);
-            }
-            else
-            {
-                if (!_isPaused)
+                if (!_isSessionActive)
                 {
-                    await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_PAUSE);
+                    string cmd = $"{PipeProtocol.CMD_START}|{(int)FocusBlockBox.Value}|{(int)FocusBlockMinsBox.Value}|{(int)RestBlockMinsBox.Value}";
+                    await _pipeWriter.WriteLineAsync(cmd);
+                    UpdateStartButtonUI(true, false);
                 }
                 else
                 {
-                    await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_RESUME);
+                    string cmd = !_isPaused ? PipeProtocol.CMD_PAUSE : PipeProtocol.CMD_RESUME;
+                    await _pipeWriter.WriteLineAsync(cmd);
+                    await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_STATUS);
                 }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to send command: {ex.Message}");
+                await ReconnectBackgroundWorker();
+                // Retry the command after reconnection
+                await Task.Delay(500);
+                StartStopButton_Click(sender, e);
             }
         }
     }
