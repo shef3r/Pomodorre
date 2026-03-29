@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
@@ -28,6 +29,9 @@ namespace Pomodorre.WinUI.Pages
             InitializeComponent();
             this.Loaded += (s, e) => Current = this;
             this.Unloaded += (s, e) => Current = null;
+            this.Loaded += async (s, e) => {
+                jsonDebug_history.Text = string.Join("\n", JsonSerializer.Serialize((await SessionLogger.GetSessionsAsync(DateTime.Now, DateTime.Now)).Values.FirstOrDefault(), new JsonSerializerOptions() { WriteIndented = true }));
+            };
         }
 
         public void UpdateDebugText(string info)

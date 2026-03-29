@@ -13,7 +13,7 @@ namespace Pomodorre.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            return JsonSerializer.Serialize(value);
+            return JsonSerializer.Serialize(value, new JsonSerializerOptions() { WriteIndented = true });
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -10,44 +11,76 @@ namespace Pomodorre.Statistics
 {
     public static class SessionLogger
     {
-        public static async void LogOrUpdateSession(object data)
+        private static readonly SemaphoreSlim _lock = new(1, 1);
+
+        public static async Task LogOrUpdateSession(object data)
         {
-            PomodoroSession session = (PomodoroSession)data;
-            StorageFile fileToSave = await GetDailyFileAsync(session.StartedAtUtc.ToString("yy-MM-dd"));
-            List<PomodoroSession> sessions = [.. JsonSerializer.Deserialize<List<PomodoroSession>>(await FileIO.ReadTextAsync(fileToSave))];
-            if (sessions.Any(s => s.Id == session.Id))
+            if (data is not PomodoroSession session)
+                throw new ArgumentException(nameof(data));
+
+            string dateKey = session.StartedAtUtc.ToLocalTime().ToString("yy-MM-dd");
+
+            await _lock.WaitAsync();
+            try
             {
+                StorageFile file = await GetDailyFileAsync(dateKey);
+                string json = await FileIO.ReadTextAsync(file);
+
+                List<PomodoroSession> sessions =
+                    JsonSerializer.Deserialize<List<PomodoroSession>>(json) ?? new List<PomodoroSession>();
+
                 int index = sessions.FindIndex(s => s.Id == session.Id);
-                sessions[index] = session;
+
+                if (index >= 0)
+                    sessions[index] = session;
+                else
+                    sessions.Add(session);
+
+                string tempName = $"{dateKey}.tmp";
+                StorageFile tempFile = await ApplicationData.Current.LocalFolder.CreateFileAsync(tempName, CreationCollisionOption.ReplaceExisting);
+
+                await FileIO.WriteTextAsync(tempFile, JsonSerializer.Serialize(sessions));
+
+                StorageFolder folder = ApplicationData.Current.LocalFolder;
+                await tempFile.RenameAsync($"{dateKey}.json", NameCollisionOption.ReplaceExisting);
+
+                if (session.IsCompleted)
+                    Stars.Add((int)Math.Round(session.FocusMinutes * 0.5));
             }
-            else
+            finally
             {
-                sessions.Add(session);
+                _lock.Release();
             }
-            await FileIO.WriteTextAsync(fileToSave, JsonSerializer.Serialize(sessions));
         }
 
-        internal async static Task<StorageFile> GetDailyFileAsync(string date)
+        internal static async Task<StorageFile> GetDailyFileAsync(string date)
         {
-            string path = Path.Combine(ApplicationData.Current.LocalFolder.Path, $"{date}.json");
-            if (!File.Exists(path)) { File.WriteAllText(path, "[]"); }
+            StorageFolder folder = ApplicationData.Current.LocalFolder;
+            StorageFile file = await folder.CreateFileAsync($"{date}.json", CreationCollisionOption.OpenIfExists);
 
-            return await StorageFile.GetFileFromPathAsync(path);
+            string content = await FileIO.ReadTextAsync(file);
+            if (string.IsNullOrWhiteSpace(content))
+                await FileIO.WriteTextAsync(file, "[]");
+
+            return file;
         }
 
         public static async Task<Dictionary<DateTime, PomodoroSession[]>> GetSessionsAsync(DateTime startDate, DateTime endDate)
         {
-            Dictionary<DateTime, PomodoroSession[]> db = new Dictionary<DateTime, PomodoroSession[]>();
+            Dictionary<DateTime, PomodoroSession[]> db = new();
 
-            do
+            while (startDate <= endDate)
             {
-                string dateKey = startDate.ToString("yy-MM-dd");
+                string dateKey = startDate.ToLocalTime().ToString("yy-MM-dd");
                 StorageFile file = await GetDailyFileAsync(dateKey);
                 string content = await FileIO.ReadTextAsync(file);
-                PomodoroSession[] sessions = JsonSerializer.Deserialize<PomodoroSession[]>(content) ?? Array.Empty<PomodoroSession>();
-                db.Add(startDate, sessions);
+
+                PomodoroSession[] sessions =
+                    JsonSerializer.Deserialize<PomodoroSession[]>(content) ?? Array.Empty<PomodoroSession>();
+
+                db[startDate] = sessions;
                 startDate = startDate.AddDays(1);
-            } while (startDate <= endDate);
+            }
 
             return db;
         }

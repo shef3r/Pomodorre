@@ -1,4 +1,5 @@
-﻿using Pomodorre.TimerCore;
+﻿using Pomodorre.Statistics;
+using Pomodorre.TimerCore;
 using Pomodorre.TimerCore.Services;
 
 namespace Pomodorre.BackgroundWorker;
@@ -68,9 +69,13 @@ public class PipeServerHandler
         }
     }
 
-    private void OnServiceCompleted(object? sender, PomodoroSession e)
+    private async void OnServiceCompleted(object? sender, PomodoroSession e)
     {
-        _writer.WriteLine(PipeProtocol.EVENT_COMPLETED);
+        await SessionLogger.LogOrUpdateSession(e);
+        int currentStars = Stars.Amount;
+
+        _writer.WriteLine($"{PipeProtocol.EVENT_COMPLETED}|{currentStars}");
+        _writer.Flush();
     }
 
     public void Dispose()

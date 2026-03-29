@@ -46,7 +46,7 @@ namespace Pomodorre.Statistics
                 _local.Values[Key] = value;
             }
 
-            Notify(); // 🔥 required
+            Notify();
         }
 
         public static int Amount
@@ -60,7 +60,7 @@ namespace Pomodorre.Statistics
             if (value <= 0)
                 return;
 
-            Set(Get() + value); // ensures notification
+            Set(Get() + value);
         }
 
         public static bool TrySpend(int value)
@@ -73,7 +73,7 @@ namespace Pomodorre.Statistics
             if (current < value)
                 return false;
 
-            Set(current - value); // ensures notification
+            Set(current - value);
             return true;
         }
     }

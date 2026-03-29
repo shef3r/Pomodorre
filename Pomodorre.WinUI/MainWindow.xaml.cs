@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
+using Pomodorre.Statistics;
 using Pomodorre.TimerCore;
 using Pomodorre.TimerCore.Services;
 using Pomodorre.Tools;
@@ -52,6 +53,10 @@ namespace Pomodorre.WinUI
         public MainWindow()
         {
             InitializeComponent();
+            StatisticsBinding.Instance.PropertyChanged += (_, __) =>
+            {
+                DispatcherQueue.TryEnqueue(() => Bindings.Update());
+            };
             this.Activated += MainWindow_Activated;
             this.Closed += MainWindow_Closed;
 
@@ -282,6 +287,13 @@ namespace Pomodorre.WinUI
                                 break;
 
                             case PipeProtocol.EVENT_COMPLETED:
+                                if (parts.Length > 1 && int.TryParse(parts[1], out int newStars))
+                                {
+                                    DispatcherQueue.TryEnqueue(() =>
+                                    {
+                                        StatisticsBinding.Instance.StarAmount = newStars;
+                                    });
+                                }
                                 _isSessionActive = false;
                                 SessionTimePrefix.Text = "Session will end by";
                                 SessionTimeText.Text = Settings.EndSessionTimeString;

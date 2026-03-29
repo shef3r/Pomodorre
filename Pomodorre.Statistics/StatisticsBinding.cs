@@ -1,26 +1,40 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.UI.Dispatching;
+using System.ComponentModel;
 
 namespace Pomodorre.Statistics
 {
     public sealed class StatisticsBinding : INotifyPropertyChanged
     {
         public static StatisticsBinding Instance { get; } = new StatisticsBinding();
+        private readonly DispatcherQueue? _dispatcher = DispatcherQueue.GetForCurrentThread();
+
+        private void RaiseOnUI(string propertyName)
+        {
+            if (_dispatcher != null && _dispatcher.HasThreadAccess)
+            {
+                OnPropertyChanged(propertyName);
+            }
+            else if (_dispatcher != null)
+            {
+                _dispatcher.TryEnqueue(() => OnPropertyChanged(propertyName));
+            }
+        }
 
         private StatisticsBinding()
         {
             Stars.PropertyChanged += (_, e) =>
             {
                 if (e.PropertyName == nameof(Stars.Amount))
-                    OnPropertyChanged(nameof(StarAmount));
+                    RaiseOnUI(nameof(StarAmount));
             };
 
             Streaks.PropertyChanged += (_, e) =>
             {
                 if (e.PropertyName == nameof(Streaks.Current))
-                    OnPropertyChanged(nameof(CurrentStreak));
+                    RaiseOnUI(nameof(CurrentStreak));
 
                 if (e.PropertyName == nameof(Streaks.Longest))
-                    OnPropertyChanged(nameof(LongestStreak));
+                    RaiseOnUI(nameof(LongestStreak));
             };
         }
 
