@@ -160,7 +160,6 @@ namespace Pomodorre.WinUI
             {
                 CleanupPipe();
 
-                // Ensure the background worker process is running and responsive
                 if (!IsBackgroundWorkerRunning())
                 {
                     StartBackgroundWorkerProcess();
@@ -170,14 +169,8 @@ namespace Pomodorre.WinUI
                 _pipeClient = new NamedPipeClientStream(".", "PomodorrePipe", PipeDirection.InOut, PipeOptions.Asynchronous);
                 await _pipeClient.ConnectAsync(5000);
                 _pipeWriter = new StreamWriter(_pipeClient) { AutoFlush = true };
-
-                // Start listening for server messages
                 _ = ListenToServer();
-
-                // Start heartbeat task
                 _heartbeatTask = HeartbeatAsync(_reconnectCts.Token);
-
-                // Request current status
                 await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_STATUS);
             }
             catch (Exception ex)
@@ -190,7 +183,6 @@ namespace Pomodorre.WinUI
                 }
                 else
                 {
-                    // Schedule a full reconnect after a delay
                     _ = Task.Delay(5000).ContinueWith(_ => DispatcherQueue.TryEnqueue(async () =>
                     {
                         if (!_disposed) await ReconnectBackgroundWorker();
@@ -206,7 +198,6 @@ namespace Pomodorre.WinUI
                 var processes = Process.GetProcessesByName("Pomodorre.BackgroundWorker");
                 if (processes.Length == 0) return false;
 
-                // Check if any process is responsive (optional)
                 foreach (var proc in processes)
                 {
                     if (!proc.HasExited) return true;
@@ -223,7 +214,6 @@ namespace Pomodorre.WinUI
         {
             try
             {
-                // Kill any existing worker processes that might be hung
                 foreach (var proc in Process.GetProcessesByName("Pomodorre.BackgroundWorker"))
                 {
                     try { proc.Kill(); } catch { }
@@ -267,6 +257,11 @@ namespace Pomodorre.WinUI
                                 _isSessionActive = bool.Parse(parts[1]);
                                 _isPaused = bool.Parse(parts[2]);
                                 UpdateStartButtonUI(_isSessionActive, _isPaused);
+
+                                if (ContentFrame.Content is FocusPage focusPage)
+                                {
+                                    focusPage.UpdateStatus(line);
+                                }
 
                                 if (_isSessionActive)
                                 {
@@ -395,6 +390,49 @@ namespace Pomodorre.WinUI
                 FocusBlockMinsOverlay.Opacity = 0.4;
                 RestBlockMinsBox.IsEnabled = false;
                 RestBlockOverlay.Opacity = 0.4;
+            }
+
+            TriggerFocusView(active && !paused);
+        }
+
+        private void TriggerFocusView(bool v)
+        {
+            foreach (UIElement item in MinuteContent.Children)
+            {
+                try
+                {
+                    if (item is Grid g)
+                    {
+                        foreach (UIElement item1 in g.Children)
+                        {
+                            if (item1 is NumberBox nb) nb.IsEnabled = !v;
+                            if (item1 is TextBlock tb && !tb.IsHitTestVisible) tb.Opacity = v ? 0.4 : 1;
+                        }
+                    }
+                }
+                catch { }
+            }
+
+            MinuteToggle.IsEnabled = !v;
+            SidebarListView.IsEnabled = !v;
+            SidebarListViewLower.IsEnabled = !v;
+            StreakItem.Opacity = v ? 0.4 : 1;
+            
+            if (!v)
+            {
+                if (ContentFrame.CurrentSourcePageType == typeof(FocusPage))
+                {
+                    ContentFrame.Navigate(typeof(HomePage));
+                    SidebarListView.SelectedIndex = 1;
+                }
+            }
+            else
+            {
+                if (ContentFrame.CurrentSourcePageType != typeof(FocusPage))
+                {
+                    ContentFrame.Navigate(typeof(FocusPage));
+                    SidebarListView.SelectedIndex = -1;
+                }
             }
         }
 
@@ -586,7 +624,6 @@ namespace Pomodorre.WinUI
             {
                 Debug.WriteLine($"Failed to send command: {ex.Message}");
                 await ReconnectBackgroundWorker();
-                // Retry the command after reconnection
                 await Task.Delay(500);
                 StartStopButton_Click(sender, e);
             }

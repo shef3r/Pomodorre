@@ -13,6 +13,9 @@
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
+	<ItemGroup>
+	  <None Remove="Pages\FocusPage.xaml" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<Content Include="Assets\SplashScreen.scale-200.png" />
@@ -45,6 +48,12 @@
 		<ProjectReference Include="..\Pomodorre.Styling\Pomodorre.Styling.csproj" />
 		<ProjectReference Include="..\Pomodorre.TimerCore\Pomodorre.TimerCore.csproj" />
 		<ProjectReference Include="..\Pomodorre.Tools\Pomodorre.Tools.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="Pages\FocusPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 
 	<ItemGroup>
