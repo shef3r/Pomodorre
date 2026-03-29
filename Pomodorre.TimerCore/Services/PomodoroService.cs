@@ -1,7 +1,6 @@
-﻿using System;
-using System.ComponentModel;
+﻿using Pomodorre.Statistics;
+using System;
 using System.Diagnostics;
-using System.IO;
 using System.Threading;
 
 namespace Pomodorre.TimerCore.Services
@@ -11,19 +10,23 @@ namespace Pomodorre.TimerCore.Services
         public static PomodoroService Instance { get; } = new();
 
         private Timer? _timer;
-        public event EventHandler<string> DebugInfoUpdated;
-        private string DebugInfo {
-            set
-            {
-                DebugInfoUpdated?.Invoke(this, value);
-            }
-        }
+
+        public event EventHandler<string>? DebugInfoUpdated;
         public event EventHandler? Tick;
         public event EventHandler<PomodoroSession>? SessionCompleted;
 
         public PomodoroSession? CurrentSession { get; private set; }
 
-        private PomodoroService() {
+        private string DebugInfo
+        {
+            set
+            {
+                DebugInfoUpdated?.Invoke(this, value);
+            }
+        }
+
+        private PomodoroService()
+        {
             string currentProcess = Process.GetCurrentProcess().ProcessName;
 
             if (currentProcess.Equals("Pomodorre.WinUI", StringComparison.OrdinalIgnoreCase))
@@ -45,11 +48,14 @@ namespace Pomodorre.TimerCore.Services
                 IsPaused = false,
                 IsCompleted = false,
                 IsCancelled = false,
+                StartedAtUtc = DateTime.UtcNow,
             };
 
             StartPhase(TimeSpan.FromMinutes(focusMinutes));
             StartTimer();
             UpdateDebugInfo();
+
+            SessionLogger.LogOrUpdateSession(CurrentSession!);
 
             Console.WriteLine($"[START] Blocks={blocks}, Focus={focusMinutes}, Break={breakMinutes}");
         }
@@ -57,31 +63,45 @@ namespace Pomodorre.TimerCore.Services
         public void Pause()
         {
             if (CurrentSession == null) return;
+
             CurrentSession.IsPaused = true;
             _timer?.Change(Timeout.Infinite, Timeout.Infinite);
             UpdateDebugInfo();
+
+            SessionLogger.LogOrUpdateSession(CurrentSession!);
+
             Console.WriteLine("[PAUSE]");
         }
 
         public void Resume()
         {
             if (CurrentSession == null) return;
+
             CurrentSession.IsPaused = false;
             CurrentSession.PhaseStartUtc = DateTime.UtcNow -
                 (CurrentSession.PhaseDuration - CurrentSession.Remaining);
+
             StartTimer();
             UpdateDebugInfo();
+
+            SessionLogger.LogOrUpdateSession(CurrentSession!);
+
             Console.WriteLine("[RESUME]");
         }
 
         public void Stop()
         {
             if (CurrentSession == null) return;
+
             CurrentSession.IsCancelled = true;
             _timer?.Dispose();
-            UpdateDebugInfo();
-            Console.WriteLine("[STOP]");
+
+            SessionLogger.LogOrUpdateSession(CurrentSession!);
+
             CurrentSession = null;
+            DebugInfo = "[No active session]";
+
+            Console.WriteLine("[STOP]");
         }
 
         private void StartPhase(TimeSpan duration)
@@ -107,6 +127,7 @@ namespace Pomodorre.TimerCore.Services
             }
 
             var s = CurrentSession;
+
             if (s.IsPaused)
             {
                 UpdateDebugInfo();
@@ -117,19 +138,24 @@ namespace Pomodorre.TimerCore.Services
             var remaining = s.PhaseDuration - elapsed;
 
             if (remaining <= TimeSpan.Zero)
+            {
                 AdvancePhase();
+            }
             else
+            {
                 s.Remaining = remaining;
+            }
 
-            UpdateDebugInfo();
             Tick?.Invoke(this, EventArgs.Empty);
+            UpdateDebugInfo();
         }
 
         private void AdvancePhase()
         {
             var s = CurrentSession!;
+            bool wasBreak = s.IsBreak;
 
-            var wasBreak = s.IsBreak;
+            SessionLogger.LogOrUpdateSession(s);
 
             if (!wasBreak)
             {
@@ -148,6 +174,7 @@ namespace Pomodorre.TimerCore.Services
             {
                 s.IsBreak = false;
                 s.CurrentBlockIndex++;
+
                 if (s.CurrentBlockIndex > s.TotalBlocks)
                 {
                     s.Remaining = TimeSpan.Zero;
@@ -163,9 +190,13 @@ namespace Pomodorre.TimerCore.Services
         private void CompleteSession()
         {
             _timer?.Dispose();
+
             var completed = CurrentSession!;
             completed.IsCompleted = true;
+
             SessionCompleted?.Invoke(this, completed);
+
+            SessionLogger.LogOrUpdateSession(completed);
 
             CurrentSession = null;
             DebugInfo = "[Session complete]\nNo active session";
@@ -176,6 +207,7 @@ namespace Pomodorre.TimerCore.Services
         public double GetProgress()
         {
             if (CurrentSession == null) return 0;
+
             var s = CurrentSession;
             return 1.0 - (s.Remaining.TotalSeconds / s.PhaseDuration.TotalSeconds);
         }

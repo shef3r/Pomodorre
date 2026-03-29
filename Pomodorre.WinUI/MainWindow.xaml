@@ -7,6 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tools="using:Pomodorre.Tools"
+    xmlns:statistics="using:Pomodorre.Statistics"
     mc:Ignorable="d"
     Title="Pomodorre">
 
@@ -50,7 +51,7 @@
                     <RowDefinition Height="Auto" x:Name="MinuteRow"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <Button Style="{StaticResource PDAccentButtonStyle}" HorizontalAlignment="Stretch" Height="48" Click="StartStopButton_Click">
+                <Button Style="{StaticResource PDAccentButtonStyle}" HorizontalAlignment="Stretch" Height="48" Click="StartStopButton_Click" x:Name="SessionButton">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <SymbolIcon Symbol="Play" x:Name="StartStopSymbol" Foreground="White"/>
                         <TextBlock FontFamily="Segoe UI Variable Display" Foreground="White" Text="Start" FontSize="15" VerticalAlignment="Center" Opacity=".9" Margin="10,0,0,0" x:Name="StartStopText"/>
@@ -195,7 +196,7 @@
                         </Grid.ColumnDefinitions>
                         <FontIcon Glyph="" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" FontSize="16"/>
                         <TextBlock Text="Stars" Grid.Column="1" VerticalAlignment="Center" FontSize="14"/>
-                        <TextBlock Text="{x:Bind tools:SettingsBinding.Instance.StarAmount, Mode=OneWay}" Margin="0,0,3,0" Grid.Column="2" VerticalAlignment="Center" FontSize="14" FontFamily="Segoe UI Variable Display" Foreground="{StaticResource AccentBrush1}" FontWeight="SemiBold"/>
+                        <TextBlock Text="{x:Bind statistics:StatisticsBinding.Instance.StarAmount, Mode=OneWay}" Margin="0,0,3,0" Grid.Column="2" VerticalAlignment="Center" FontSize="14" FontFamily="Segoe UI Variable Display" Foreground="{StaticResource AccentBrush1}" FontWeight="SemiBold"/>
                     </Grid>
                 </ListViewItem>
                 <!-- Unselectable streak item: disabled so it doesn't react to hover or click -->
@@ -208,7 +209,7 @@
                         </Grid.ColumnDefinitions>
                         <FontIcon Glyph="" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" FontSize="16"/>
                         <TextBlock Text="Streak" Grid.Column="1" VerticalAlignment="Center" FontSize="14"/>
-                        <TextBlock Text="{x:Bind tools:SettingsBinding.Instance.CurrentStreak, Mode=OneWay}" Margin="0,0,3,0" Grid.Column="2" VerticalAlignment="Center" FontSize="14" FontFamily="Segoe UI Variable Display" Foreground="{StaticResource AccentBrush1}" FontWeight="SemiBold"/>
+                        <TextBlock Text="{x:Bind statistics:StatisticsBinding.Instance.CurrentStreak, Mode=OneWay}" Margin="0,0,3,0" Grid.Column="2" VerticalAlignment="Center" FontSize="14" FontFamily="Segoe UI Variable Display" Foreground="{StaticResource AccentBrush1}" FontWeight="SemiBold"/>
                     </Grid>
                 </ListViewItem>
                 <ListViewItem Style="{StaticResource PDSidebarNavItem}" Tag="Settings">

@@ -1,5 +1,6 @@
 using System.ComponentModel;
 
+#nullable enable
 namespace Pomodorre.Tools
 {
     public sealed class SettingsBinding : INotifyPropertyChanged
@@ -15,14 +16,6 @@ namespace Pomodorre.Tools
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
-
-        public int StarAmount
-        {
-            get => Settings.StarAmount;
-            set => Settings.StarAmount = value;
-        }
-
-        public int CurrentStreak => Settings.CurrentStreak;
         
         public int FocusBlocks
         {

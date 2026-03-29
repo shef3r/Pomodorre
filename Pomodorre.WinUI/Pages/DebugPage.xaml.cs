@@ -12,6 +12,7 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using Pomodorre.Statistics;
 using Pomodorre.Tools;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -42,19 +43,19 @@ namespace Pomodorre.WinUI.Pages
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Settings.StarAmount += 10;
+            Stars.Amount += 10;
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            Settings.StarAmount -= 10;
+            Stars.Amount -= 10;
         }
 
         private async void Button_Click_2(object sender, RoutedEventArgs e)
         {
             if (sender is not Button btn) return;
 
-            bool alreadyHasStreak = Settings.StreakHistory.Any(x => x.Key.Date == DateTime.Today);
+            bool alreadyHasStreak = Streaks.History.Any(x => x.Key.Date == DateTime.Today);
 
             if (alreadyHasStreak)
             {
@@ -64,7 +65,7 @@ namespace Pomodorre.WinUI.Pages
             }
             else
             {
-                Settings.AddOrUpdateStreak(DateTime.Today, true);
+                Streaks.AddOrUpdate(DateTime.Today, true);
             }
         }
     }

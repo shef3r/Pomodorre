@@ -23,8 +23,8 @@ namespace Pomodorre.WinUI
 {
     public sealed partial class MainWindow : Window
     {
-        private NamedPipeClientStream _pipeClient;
-        private StreamWriter _pipeWriter;
+        private NamedPipeClientStream? _pipeClient;
+        private StreamWriter? _pipeWriter;
         private bool _isSessionActive = false;
         private bool _isPaused = false;
         private bool _allowClose = false;
@@ -33,7 +33,7 @@ namespace Pomodorre.WinUI
         private WndProcDelegate? _wndProcDelegate;
         private bool _isReconnecting = false;
         private CancellationTokenSource _reconnectCts = new CancellationTokenSource();
-        private Task _heartbeatTask;
+        private Task? _heartbeatTask;
         private bool _disposed = false;
 
         private const int GWL_WNDPROC = -4;
@@ -95,7 +95,7 @@ namespace Pomodorre.WinUI
             if (SidebarListView.SelectedItem is not ListViewItem lvi) return;
             if (lvi.Tag is not string tag) return;
 
-            Type pageType = tag switch
+            Type? pageType = tag switch
             {
                 "Debug" => typeof(DebugPage),
                 "Home" => typeof(HomePage),
@@ -122,6 +122,10 @@ namespace Pomodorre.WinUI
 
         private async void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
         {
+            SessionButton.IsEnabled = false;
+            ContentFrame.IsEnabled = false;
+            StartStopText.Text = "Initializing...";
+            StartStopSymbol.Visibility = Visibility.Collapsed;
             this.Activated -= MainWindow_Activated;
 
             this.ExtendsContentIntoTitleBar = true;
@@ -240,7 +244,7 @@ namespace Pomodorre.WinUI
         {
             try
             {
-                using var reader = new StreamReader(_pipeClient);
+                using StreamReader reader = new StreamReader(_pipeClient);
                 while (_pipeClient.IsConnected && !_reconnectCts.Token.IsCancellationRequested)
                 {
                     var line = await reader.ReadLineAsync();
@@ -252,6 +256,9 @@ namespace Pomodorre.WinUI
                         switch (parts[0])
                         {
                             case PipeProtocol.EVENT_STATUS:
+                                SessionButton.IsEnabled = true;
+                                ContentFrame.IsEnabled = true;
+                                StartStopSymbol.Visibility = Visibility.Visible;
                                 _isSessionActive = bool.Parse(parts[1]);
                                 _isPaused = bool.Parse(parts[2]);
                                 UpdateStartButtonUI(_isSessionActive, _isPaused);

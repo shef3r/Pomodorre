@@ -6,12 +6,35 @@
     xmlns:local="using:Pomodorre.WinUI.Pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tools="using:Pomodorre.Tools"
+    xmlns:converters="using:Pomodorre.Converters"
+    xmlns:statistics="using:Pomodorre.Statistics"
     mc:Ignorable="d">
+    <Page.Resources>
+        <converters:ObjectToJsonConverter x:Key="ObjectToJsonConverter"/>
+    </Page.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-    <StackPanel Orientation="Vertical">
-        <TextBlock x:Name="dbox"/>
-        <Button Content="Add 10 stars" Click="Button_Click"/>
-        <Button Content="Remove 10 stars" Click="Button_Click_1"/>
-        <Button Content="Session started on a new day" Click="Button_Click_2"/>
-    </StackPanel>
+        <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="0">
+            <TextBlock x:Name="dbox"/>
+            <Button Content="Add 10 stars" Click="Button_Click"/>
+            <Button Content="Remove 10 stars" Click="Button_Click_1"/>
+            <Button Content="Session started on a new day" Click="Button_Click_2"/>
+        </StackPanel>
+
+        <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="0" Grid.Column="1">
+            <TextBlock x:Name="jsonDebug_streaks" Text="{x:Bind statistics:StatisticsBinding.Instance.StreakHistory, Mode=OneWay, Converter={StaticResource ObjectToJsonConverter}}"/>
+        </ScrollViewer>
+        <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1" Grid.Column="1">
+            <TextBlock x:Name="jsonDebug_history"/>
+        </ScrollViewer>
+    </Grid>
 </Page>
