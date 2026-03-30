@@ -15,9 +15,6 @@ class Program
         if (args.Length > 0 && int.TryParse(args[0], out int pid))
             _parentPid = pid;
 
-        if (_parentPid != -1)
-            _ = MonitorParentProcessAsync(_cts.Token);
-
         try
         {
             await RunPipeServerAsync(_cts.Token);
@@ -79,29 +76,6 @@ class Program
                 // Log error (optional) and wait before retrying
                 await Task.Delay(1000, cancellationToken);
             }
-        }
-    }
-
-    private static async Task MonitorParentProcessAsync(CancellationToken cancellationToken)
-    {
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            try
-            {
-                var parent = Process.GetProcessById(_parentPid);
-                if (parent.HasExited)
-                {
-                    _cts.Cancel();
-                    break;
-                }
-            }
-            catch (ArgumentException)
-            {
-                _cts.Cancel();
-                break;
-            }
-
-            await Task.Delay(5000, cancellationToken);
         }
     }
 }

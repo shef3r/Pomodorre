@@ -52,8 +52,9 @@ public class PipeServerHandler
                 bool isPaused = session?.IsPaused ?? false;
                 string time = session?.Remaining.ToString(@"mm\:ss") ?? "00:00";
                 double progress = PomodoroService.Instance.GetProgress();
+                bool isBreak = session?.IsBreak ?? false;
 
-                _writer.WriteLine($"{PipeProtocol.EVENT_STATUS}|{isActive}|{isPaused}|{time}|{progress}");
+                _writer.WriteLine($"{PipeProtocol.EVENT_STATUS}|{isActive}|{isPaused}|{time}|{progress}|{isBreak}");
                 break;
         }
     }
@@ -61,12 +62,13 @@ public class PipeServerHandler
     private void OnServiceTick(object? sender, EventArgs e)
     {
         var session = PomodoroService.Instance.CurrentSession;
-        if (session != null)
-        {
-            string time = session.Remaining.ToString(@"mm\:ss");
-            double progress = PomodoroService.Instance.GetProgress();
-            _writer.WriteLine($"{PipeProtocol.EVENT_TICK}|{time}|{progress}");
-        }
+        if (session == null) return;
+
+        string time = session.Remaining.ToString(@"mm\:ss");
+        double progress = PomodoroService.Instance.GetProgress();
+        bool isBreak = session.IsBreak;
+
+        _writer.WriteLine($"{PipeProtocol.EVENT_TICK}|{time}|{progress}|{isBreak}");
     }
 
     private async void OnServiceCompleted(object? sender, PomodoroSession e)

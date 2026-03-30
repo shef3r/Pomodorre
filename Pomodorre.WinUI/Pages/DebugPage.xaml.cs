@@ -30,7 +30,8 @@ namespace Pomodorre.WinUI.Pages
             this.Loaded += (s, e) => Current = this;
             this.Unloaded += (s, e) => Current = null;
             this.Loaded += async (s, e) => {
-                jsonDebug_history.Text = string.Join("\n", JsonSerializer.Serialize((await SessionLogger.GetSessionsAsync(DateTime.Now, DateTime.Now)).Values.FirstOrDefault(), new JsonSerializerOptions() { WriteIndented = true }));
+                var sessions = await SessionLogger.GetSessionsAsync(DateTime.Now, DateTime.Now);
+                jsonDebug_history.Text = JsonSerializer.Serialize(sessions.Values.FirstOrDefault(), new JsonSerializerOptions { WriteIndented = true });
             };
         }
 

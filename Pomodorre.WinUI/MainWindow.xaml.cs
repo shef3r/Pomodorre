@@ -28,6 +28,7 @@ namespace Pomodorre.WinUI
         private StreamWriter? _pipeWriter;
         private bool _isSessionActive = false;
         private bool _isPaused = false;
+        private bool _isBreak = false;
         private bool _allowClose = false;
         private IntPtr _hwnd = IntPtr.Zero;
         private IntPtr _prevWndProc = IntPtr.Zero;
@@ -256,6 +257,7 @@ namespace Pomodorre.WinUI
                                 StartStopSymbol.Visibility = Visibility.Visible;
                                 _isSessionActive = bool.Parse(parts[1]);
                                 _isPaused = bool.Parse(parts[2]);
+                                _isBreak = bool.Parse(parts[5]);
                                 UpdateStartButtonUI(_isSessionActive, _isPaused);
 
                                 if (ContentFrame.Content is FocusPage focusPage)
@@ -265,7 +267,7 @@ namespace Pomodorre.WinUI
 
                                 if (_isSessionActive)
                                 {
-                                    SessionTimePrefix.Text = "Block ends in";
+                                    SessionTimePrefix.Text = string.Format("{0} block ends in", [_isBreak ? "Break" : "Focus"]);
                                     SessionTimeText.Text = parts[3];
                                 }
                                 else
@@ -277,7 +279,8 @@ namespace Pomodorre.WinUI
 
                             case PipeProtocol.EVENT_TICK:
                                 _isSessionActive = true;
-                                SessionTimePrefix.Text = "Block ends in";
+                                _isBreak = bool.Parse(parts[3]);
+                                SessionTimePrefix.Text = string.Format("{0} block ends in", [_isBreak ? "Break" : "Focus"]);
                                 SessionTimeText.Text = parts[1];
                                 break;
 
@@ -397,6 +400,22 @@ namespace Pomodorre.WinUI
 
         private void TriggerFocusView(bool v)
         {
+            if (!v)
+            {
+                if (ContentFrame.CurrentSourcePageType == typeof(FocusPage))
+                {
+                    ContentFrame.Navigate(typeof(HomePage));
+                    SidebarListView.SelectedIndex = 1;
+                }
+            }
+            else
+            {
+                if (ContentFrame.CurrentSourcePageType != typeof(FocusPage))
+                {
+                    ContentFrame.Navigate(typeof(FocusPage));
+                    SidebarListView.SelectedIndex = -1;
+                }
+            }
             foreach (UIElement item in MinuteContent.Children)
             {
                 try
@@ -416,24 +435,7 @@ namespace Pomodorre.WinUI
             MinuteToggle.IsEnabled = !v;
             SidebarListView.IsEnabled = !v;
             SidebarListViewLower.IsEnabled = !v;
-            StreakItem.Opacity = v ? 0.4 : 1;
-            
-            if (!v)
-            {
-                if (ContentFrame.CurrentSourcePageType == typeof(FocusPage))
-                {
-                    ContentFrame.Navigate(typeof(HomePage));
-                    SidebarListView.SelectedIndex = 1;
-                }
-            }
-            else
-            {
-                if (ContentFrame.CurrentSourcePageType != typeof(FocusPage))
-                {
-                    ContentFrame.Navigate(typeof(FocusPage));
-                    SidebarListView.SelectedIndex = -1;
-                }
-            }
+            StreakItem.Opacity = v ? 0.3 : 1;            
         }
 
         private IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
@@ -463,6 +465,11 @@ namespace Pomodorre.WinUI
                         {
                             if (_pipeWriter != null)
                                 await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_STOP);
+
+                            foreach (var proc in Process.GetProcessesByName("Pomodorre.BackgroundWorker"))
+                            {
+                                try { proc.Kill(); } catch { }
+                            }
                             _allowClose = true;
                             this.Close();
                         }
@@ -611,6 +618,7 @@ namespace Pomodorre.WinUI
                 {
                     string cmd = $"{PipeProtocol.CMD_START}|{(int)FocusBlockBox.Value}|{(int)FocusBlockMinsBox.Value}|{(int)RestBlockMinsBox.Value}";
                     await _pipeWriter.WriteLineAsync(cmd);
+                    Streaks.AddOrUpdate(DateTime.Today, true);
                     UpdateStartButtonUI(true, false);
                 }
                 else
