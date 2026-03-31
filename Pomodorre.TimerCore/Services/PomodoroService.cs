@@ -79,10 +79,13 @@ namespace Pomodorre.TimerCore.Services
         public void Resume()
         {
             if (CurrentSession == null) return;
+            if (!CurrentSession.IsPaused) return;
 
             CurrentSession.IsPaused = false;
             CurrentSession.PhaseStartUtc = DateTime.UtcNow -
                 (CurrentSession.PhaseDuration - CurrentSession.Remaining);
+
+            StartTimer();
 
             UpdateDebugInfo();
 
@@ -192,29 +195,29 @@ namespace Pomodorre.TimerCore.Services
 
         private void SendNotif(bool? isBreak, int nextBlockMinutes)
         {
-            AppNotificationBuilder builder = new AppNotificationBuilder();
+            var builder = new AppNotificationBuilder();
 
             if (isBreak != null)
             {
-                new AppNotificationBuilder()
-                .AddText((bool)isBreak ? "Take a break!" : "Time to focus.")
-                .AddText(
-                    (bool)isBreak
-                        ? $"Take {nextBlockMinutes} minutes off."
-                        : $"Lock in for {nextBlockMinutes} minutes.")
-                .SetScenario(AppNotificationScenario.Alarm)
-                .SetAudioUri(new Uri(
-                    (bool)isBreak
-                        ? "ms-winsoundevent:Notification.Reminder"
-                        : "ms-winsoundevent:Notification.Looping.Alarm"));
+                builder
+                    .AddText((bool)isBreak ? "Take a break!" : "Time to focus.")
+                    .AddText(
+                        (bool)isBreak
+                            ? $"Take {nextBlockMinutes} minutes off."
+                            : $"Lock in for {nextBlockMinutes} minutes.")
+                    .SetScenario(AppNotificationScenario.Alarm)
+                    .SetAudioUri(new Uri(
+                        (bool)isBreak
+                            ? "ms-winsoundevent:Notification.Reminder"
+                            : "ms-winsoundevent:Notification.Looping.Alarm"));
             }
             else
             {
-                new AppNotificationBuilder()
-                .AddText("Focus session finished!")
-                .AddText("The session is finished. You've done it!")
-                .SetScenario(AppNotificationScenario.Alarm)
-                .SetAudioUri(new Uri("ms-winsoundevent:Notification.Reminder"));
+                builder
+                    .AddText("Focus session finished!")
+                    .AddText("The session is finished. You've done it!")
+                    .SetScenario(AppNotificationScenario.Alarm)
+                    .SetAudioUri(new Uri("ms-winsoundevent:Notification.Reminder"));
             }
 
             AppNotificationManager.Default.Show(builder.BuildNotification());
@@ -230,7 +233,7 @@ namespace Pomodorre.TimerCore.Services
             SessionCompleted?.Invoke(this, completed);
 
             SendNotif(null, -1);
-            SessionLogger.LogOrUpdateSession(completed);
+            _ = SessionLogger.LogOrUpdateSession(completed);
 
             CurrentSession = null;
             DebugInfo = "[Session complete]\nNo active session";

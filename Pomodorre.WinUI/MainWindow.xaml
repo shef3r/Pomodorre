@@ -105,12 +105,12 @@
                 </StackPanel>
                 <AppBarButton HorizontalAlignment="Stretch" Width="145" CornerRadius="7" Height="48" x:Name="MinuteToggle" Click="MinuteToggle_Click" Grid.Row="4">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity=".7">
-                        <FontIcon Glyph="&#xE70E;" RenderTransformOrigin="0.5,0.5" FontSize="12">
+                        <FontIcon Glyph="&#xE70E;" RenderTransformOrigin="0.5,0.5" FontSize="12" x:Name="MinuteToggleChevron">
                             <FontIcon.RenderTransform>
                                 <RotateTransform Angle="0" x:Name="MinuteToggleChevronTransform"/>
                             </FontIcon.RenderTransform>
                         </FontIcon>
-                        <TextBlock Margin="10,0,0,0" FontSize="11">Customize</TextBlock>
+                        <TextBlock Margin="10,0,0,0" FontSize="11" x:Name="MinuteToggleText">Customize</TextBlock>
                     </StackPanel>
                 </AppBarButton>
             </Grid>

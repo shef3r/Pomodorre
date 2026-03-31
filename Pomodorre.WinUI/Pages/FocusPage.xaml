@@ -9,6 +9,7 @@
     mc:Ignorable="d">
 
     <Grid>
-        <TextBlock x:Name="Status"/>
+        <TextBlock x:Name="RemainingTimeDBG" Text="{x:Bind RemainingTime, Mode=OneWay}"/>
+        <ProgressBar Margin="0,20,0,0" x:Name="ProgressDBG" Value="{x:Bind Progress, Mode=OneWay}" Maximum="1"/>
     </Grid>
 </Page>

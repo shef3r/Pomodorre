@@ -252,39 +252,57 @@ namespace Pomodorre.WinUI
                         switch (parts[0])
                         {
                             case PipeProtocol.EVENT_STATUS:
-                                SessionButton.IsEnabled = true;
-                                ContentFrame.IsEnabled = true;
-                                StartStopSymbol.Visibility = Visibility.Visible;
-                                _isSessionActive = bool.Parse(parts[1]);
-                                _isPaused = bool.Parse(parts[2]);
-                                _isBreak = bool.Parse(parts[5]);
-                                UpdateStartButtonUI(_isSessionActive, _isPaused);
+                                {
+                                    SessionButton.IsEnabled = true;
+                                    ContentFrame.IsEnabled = true;
+                                    StartStopSymbol.Visibility = Visibility.Visible;
+                                    _isSessionActive = bool.Parse(parts[1]);
+                                    _isPaused = bool.Parse(parts[2]);
+                                    _isBreak = bool.Parse(parts[5]);
+                                    UpdateStartButtonUI(_isSessionActive, _isPaused);
 
-                                if (ContentFrame.Content is FocusPage focusPage)
-                                {
-                                    focusPage.UpdateStatus(line);
-                                }
+                                    if (ContentFrame.Content is FocusPage focusPage)
+                                    {
+                                        focusPage.UpdateStatus(line);
+                                    }
 
-                                if (_isSessionActive)
-                                {
-                                    SessionTimePrefix.Text = string.Format("{0} block ends in", [_isBreak ? "Break" : "Focus"]);
-                                    SessionTimeText.Text = parts[3];
+                                    if (_isSessionActive)
+                                    {
+                                        SessionTimePrefix.Text = string.Format("{0} block ends in", [_isBreak ? "Break" : "Focus"]);
+                                        SessionTimeText.Text = parts[3];
+                                    }
+                                    else
+                                    {
+                                        SessionTimePrefix.Text = "Session will end by";
+                                        SessionTimeText.Text = Settings.EndSessionTimeString;
+                                    }
+                                    break;
                                 }
-                                else
-                                {
-                                    SessionTimePrefix.Text = "Session will end by";
-                                    SessionTimeText.Text = Settings.EndSessionTimeString;
-                                }
-                                break;
 
                             case PipeProtocol.EVENT_TICK:
-                                _isSessionActive = true;
-                                _isBreak = bool.Parse(parts[3]);
-                                SessionTimePrefix.Text = string.Format("{0} block ends in", [_isBreak ? "Break" : "Focus"]);
-                                SessionTimeText.Text = parts[1];
-                                break;
+                                {
+                                    _isSessionActive = true;
+                                    UpdateStartButtonUI(_isSessionActive, _isPaused);
+                                    _isBreak = bool.Parse(parts[3]);
+
+                                    SessionTimePrefix.Text = $"{(_isBreak ? "Break" : "Focus")} block ends in";
+                                    SessionTimeText.Text = parts[1];
+
+                                    if (ContentFrame.Content is FocusPage focusPage)
+                                    {
+                                        focusPage.UpdateStatus(line);
+                                    }
+
+                                    if (ContentFrame.Content is DebugPage debugPage)
+                                    {
+                                        debugPage.UpdateDebugText(line);
+                                    }
+
+                                    break;
+                                }
 
                             case PipeProtocol.EVENT_COMPLETED:
+                                UpdateStartButtonUI(false, false);
                                 if (parts.Length > 1 && int.TryParse(parts[1], out int newStars))
                                 {
                                     DispatcherQueue.TryEnqueue(() =>
@@ -295,7 +313,6 @@ namespace Pomodorre.WinUI
                                 _isSessionActive = false;
                                 SessionTimePrefix.Text = "Session will end by";
                                 SessionTimeText.Text = Settings.EndSessionTimeString;
-                                UpdateStartButtonUI(false, false);
                                 break;
                         }
                     });
@@ -382,6 +399,11 @@ namespace Pomodorre.WinUI
                 FocusBlockMinsOverlay.Opacity = 1;
                 RestBlockMinsBox.IsEnabled = true;
                 RestBlockOverlay.Opacity = 1;
+                MinuteContent.IsHitTestVisible = !paused;
+
+                MinuteToggle.IsEnabled = true;
+                MinuteToggleChevron.Glyph = "";
+                MinuteToggleText.Text = "Customize";
             }
             else
             {
@@ -393,9 +415,14 @@ namespace Pomodorre.WinUI
                 FocusBlockMinsOverlay.Opacity = 0.4;
                 RestBlockMinsBox.IsEnabled = false;
                 RestBlockOverlay.Opacity = 0.4;
+                MinuteContent.IsHitTestVisible = false;
+
+                MinuteToggle.IsEnabled = true;
+                MinuteToggleChevron.Glyph = "";
+                MinuteToggleText.Text = "Cancel session";
             }
 
-            TriggerFocusView(active && !paused);
+            TriggerFocusView(active && !paused && !_isBreak);
         }
 
         private void TriggerFocusView(bool v)
@@ -431,8 +458,6 @@ namespace Pomodorre.WinUI
                 }
                 catch { }
             }
-
-            MinuteToggle.IsEnabled = !v;
             SidebarListView.IsEnabled = !v;
             SidebarListViewLower.IsEnabled = !v;
             StreakItem.Opacity = v ? 0.3 : 1;            
@@ -486,10 +511,20 @@ namespace Pomodorre.WinUI
             return CallWindowProc(_prevWndProc, hWnd, msg, wParam, lParam);
         }
 
-        private void MinuteToggle_Click(object sender, RoutedEventArgs e)
+        private async void MinuteToggle_Click(object sender, RoutedEventArgs e)
         {
-            Settings.IsTimePickerCollapsed = !Settings.IsTimePickerCollapsed;
-            AnimateTimePicker();
+            if (!_isSessionActive)
+            {
+                Settings.IsTimePickerCollapsed = !Settings.IsTimePickerCollapsed;
+                AnimateTimePicker();
+            }
+            else
+            {
+                if (_pipeWriter != null)
+                    await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_STOP);
+                    await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_STATUS);
+            }
+
         }
 
         private void AnimateTimePicker()

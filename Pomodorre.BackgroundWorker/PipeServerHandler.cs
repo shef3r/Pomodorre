@@ -1,12 +1,17 @@
 ﻿using Pomodorre.Statistics;
 using Pomodorre.TimerCore;
 using Pomodorre.TimerCore.Services;
+using System.Globalization;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pomodorre.BackgroundWorker;
 
-public class PipeServerHandler
+public class PipeServerHandler : IDisposable
 {
     private readonly StreamWriter _writer;
+    private readonly SemaphoreSlim _writeLock = new(1, 1);
 
     public PipeServerHandler(StreamWriter writer)
     {
@@ -14,6 +19,21 @@ public class PipeServerHandler
 
         PomodoroService.Instance.Tick += OnServiceTick;
         PomodoroService.Instance.SessionCompleted += OnServiceCompleted;
+    }
+    private async Task SendMessageAsync(string message)
+    {
+        await _writeLock.WaitAsync();
+        try
+        {
+            await _writer.WriteLineAsync(message);
+        }
+        catch
+        {
+        }
+        finally
+        {
+            _writeLock.Release();
+        }
     }
 
     public async Task HandleCommand(string? commandLine)
@@ -46,6 +66,7 @@ public class PipeServerHandler
             case PipeProtocol.CMD_STOP:
                 PomodoroService.Instance.Stop();
                 break;
+
             case PipeProtocol.CMD_STATUS:
                 var session = PomodoroService.Instance.CurrentSession;
                 bool isActive = session != null;
@@ -54,12 +75,11 @@ public class PipeServerHandler
                 double progress = PomodoroService.Instance.GetProgress();
                 bool isBreak = session?.IsBreak ?? false;
 
-                _writer.WriteLine($"{PipeProtocol.EVENT_STATUS}|{isActive}|{isPaused}|{time}|{progress}|{isBreak}");
+                await SendMessageAsync($"{PipeProtocol.EVENT_STATUS}|{isActive}|{isPaused}|{time}|{progress.ToString(CultureInfo.InvariantCulture)}|{isBreak}");
                 break;
         }
     }
-
-    private void OnServiceTick(object? sender, EventArgs e)
+    private async void OnServiceTick(object? sender, EventArgs e)
     {
         var session = PomodoroService.Instance.CurrentSession;
         if (session == null) return;
@@ -68,7 +88,7 @@ public class PipeServerHandler
         double progress = PomodoroService.Instance.GetProgress();
         bool isBreak = session.IsBreak;
 
-        _writer.WriteLine($"{PipeProtocol.EVENT_TICK}|{time}|{progress}|{isBreak}");
+        await SendMessageAsync($"{PipeProtocol.EVENT_TICK}|{time}|{progress.ToString(CultureInfo.InvariantCulture)}|{isBreak}");
     }
 
     private async void OnServiceCompleted(object? sender, PomodoroSession e)
@@ -76,13 +96,13 @@ public class PipeServerHandler
         await SessionLogger.LogOrUpdateSession(e);
         int currentStars = Stars.Amount;
 
-        _writer.WriteLine($"{PipeProtocol.EVENT_COMPLETED}|{currentStars}");
-        _writer.Flush();
+        await SendMessageAsync($"{PipeProtocol.EVENT_COMPLETED}|{currentStars}");
     }
 
     public void Dispose()
     {
         PomodoroService.Instance.Tick -= OnServiceTick;
         PomodoroService.Instance.SessionCompleted -= OnServiceCompleted;
+        _writeLock.Dispose();
     }
 }
