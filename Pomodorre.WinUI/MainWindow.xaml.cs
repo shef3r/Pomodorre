@@ -386,6 +386,8 @@ namespace Pomodorre.WinUI
 
         private void UpdateStartButtonUI(bool active, bool paused)
         {
+            TriggerFocusView(active && !paused && !_isBreak);
+
             _isSessionActive = active;
             _isPaused = paused;
 
@@ -422,7 +424,6 @@ namespace Pomodorre.WinUI
                 MinuteToggleText.Text = "Cancel session";
             }
 
-            TriggerFocusView(active && !paused && !_isBreak);
         }
 
         private void TriggerFocusView(bool v)

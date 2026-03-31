@@ -7,9 +7,42 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
+    <Page.Resources>
+        <Style x:Key="BigTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="32"/>
+            <Setter Property="FontFamily" Value="Segoe UI Variable Display"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+        </Style>
+    </Page.Resources>
 
-    <Grid>
-        <TextBlock x:Name="RemainingTimeDBG" Text="{x:Bind RemainingTime, Mode=OneWay}"/>
-        <ProgressBar Margin="0,20,0,0" x:Name="ProgressDBG" Value="{x:Bind Progress, Mode=OneWay}" Maximum="1"/>
+    <Grid MaxWidth="1000" Margin="20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="RemainingTimeDBG" Text="{x:Bind RemainingTime, Mode=OneWay}" Style="{StaticResource BigTextStyle}" Grid.Row="0" Grid.Column="1" TextAlignment="Right"/>
+            <TextBlock TextAlignment="Left" Style="{StaticResource BigTextStyle}">Focusing...</TextBlock>
+            <TextBlock Grid.Row="1" Grid.Column="1" TextAlignment="Right" Opacity="0.7">Remanining focus time</TextBlock>
+            <TextBlock Grid.Row="1" Grid.Column="0" TextAlignment="Left" Opacity="0.7">Get back to work!</TextBlock>
+            <ProgressBar Margin="0,20,0,0" x:Name="ProgressDBG" Value="{x:Bind Progress, Mode=OneWay}" Height="10" Maximum="1" Grid.Row="2" Grid.ColumnSpan="2">
+                <ProgressBar.Resources>
+                    <LinearGradientBrush StartPoint="-1,0" EndPoint="1.5,1.5" x:Key="ProgressBarForeground">
+                        <GradientStop x:Name="GradientStop1" Color="{ThemeResource SystemAccentColorDark1}" Offset="0"/>
+                        <GradientStop x:Name="GradientStop2" Color="{ThemeResource SystemAccentColor}" Offset="1"/>
+                    </LinearGradientBrush>
+                    <SolidColorBrush x:Key="ProgressBarBackground" Color="{ThemeResource ControlStrongStrokeColorDefault}" Opacity=".3"/>
+                    <x:Double x:Key="ProgressBarMinHeight">8</x:Double>
+                    <x:Double x:Key="ProgressBarTrackHeight">1</x:Double>
+                    <CornerRadius x:Key="ProgressBarCornerRadius">4</CornerRadius>
+                    <CornerRadius x:Key="ProgressBarTrackCornerRadius">0.5</CornerRadius>
+                </ProgressBar.Resources>
+            </ProgressBar>
+        </Grid>
     </Grid>
 </Page>
