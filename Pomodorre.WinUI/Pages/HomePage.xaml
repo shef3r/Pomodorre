@@ -6,9 +6,40 @@
     xmlns:local="using:Pomodorre.WinUI.Pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     mc:Ignorable="d">
 
-    <Grid>
-        <TextBlock>Home</TextBlock>
+    <Page.Resources>
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </Page.Resources>
+
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <ScrollViewer HorizontalAlignment="Stretch" MaxWidth="1200" Padding="50,0,50,0">
+            <StackPanel HorizontalAlignment="Stretch" Orientation="Vertical" Margin="0,0,0,20">
+                <TextBlock x:Name="WelcomeMessage" 
+           Visibility="{x:Bind Settings.ShowWelcomeMessage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+           FontWeight="SemiBold" FontFamily="Segoe UI Variable Display" FontSize="30">
+    Welcome to Pomodorre!
+                </TextBlock>
+
+                <ItemsRepeater x:Name="StaggeredRepeater" 
+                    ItemsSource="{x:Bind HomeItemsCollection, Mode=OneWay}">
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Padding="10">
+                                <ContentPresenter Content="{Binding}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                    <ItemsRepeater.Layout>
+                        <controls:StaggeredLayout ColumnSpacing="10"
+                                              DesiredColumnWidth="300"
+                                              ItemsStretch="Fill"
+                                              RowSpacing="10" />
+                    </ItemsRepeater.Layout>
+                </ItemsRepeater>
+
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>

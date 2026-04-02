@@ -473,39 +473,54 @@ namespace Pomodorre.WinUI
 
                 DispatcherQueue.TryEnqueue(async () =>
                 {
-                    var dlg = new ContentDialog
+                    if (Settings.KillBackgroundProcessOnExit)
                     {
-                        Title = "Session running",
-                        Content = "A session is running in the background. Stop it and exit?",
-                        PrimaryButtonText = "Exit & Stop",
-                        CloseButtonText = "Keep Running & Close UI"
-                    };
+                        if (_pipeWriter != null)
+                            await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_STOP);
 
-                    try
-                    {
-                        var root = this.Content as FrameworkElement;
-                        if (root?.XamlRoot != null) dlg.XamlRoot = root.XamlRoot;
-
-                        var result = await dlg.ShowAsync();
-                        if (result == ContentDialogResult.Primary)
+                        foreach (var proc in Process.GetProcessesByName("Pomodorre.BackgroundWorker"))
                         {
-                            if (_pipeWriter != null)
-                                await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_STOP);
-
-                            foreach (var proc in Process.GetProcessesByName("Pomodorre.BackgroundWorker"))
-                            {
-                                try { proc.Kill(); } catch { }
-                            }
-                            _allowClose = true;
-                            this.Close();
+                            try { proc.Kill(); } catch { }
                         }
-                        else
-                        {
-                            _allowClose = true;
-                            this.Close();
-                        }
+                        _allowClose = true;
+                        this.Close();
                     }
-                    catch { }
+                    else
+                    {
+                        var dlg = new ContentDialog
+                        {
+                            Title = "Session running",
+                            Content = "A session is running in the background. Stop it and exit?",
+                            PrimaryButtonText = "Exit & Stop",
+                            CloseButtonText = "Keep Running & Close UI"
+                        };
+
+                        try
+                        {
+                            var root = this.Content as FrameworkElement;
+                            if (root?.XamlRoot != null) dlg.XamlRoot = root.XamlRoot;
+
+                            var result = await dlg.ShowAsync();
+                            if (result == ContentDialogResult.Primary)
+                            {
+                                if (_pipeWriter != null)
+                                    await _pipeWriter.WriteLineAsync(PipeProtocol.CMD_STOP);
+
+                                foreach (var proc in Process.GetProcessesByName("Pomodorre.BackgroundWorker"))
+                                {
+                                    try { proc.Kill(); } catch { }
+                                }
+                                _allowClose = true;
+                                this.Close();
+                            }
+                            else
+                            {
+                                _allowClose = true;
+                                this.Close();
+                            }
+                        }
+                        catch { }
+                    }
                 });
                 return IntPtr.Zero;
             }

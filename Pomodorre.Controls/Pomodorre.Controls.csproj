@@ -8,7 +8,15 @@
 		<WinUISDKReferences>false</WinUISDKReferences>
 	</PropertyGroup>
 	<ItemGroup>
+	  <None Remove="HomeTiles\StatsControl.xaml" />
+	</ItemGroup>
+	<ItemGroup>
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7705" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260209005" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="HomeTiles\StatsControl.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 </Project>
