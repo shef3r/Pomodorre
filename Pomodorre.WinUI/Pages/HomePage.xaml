@@ -26,7 +26,7 @@
                     ItemsSource="{x:Bind HomeItemsCollection, Mode=OneWay}">
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate>
-                            <Grid Padding="10">
+                            <Grid Padding="10" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8">
                                 <ContentPresenter Content="{Binding}"/>
                             </Grid>
                         </DataTemplate>

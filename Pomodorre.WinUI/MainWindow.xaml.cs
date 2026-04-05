@@ -54,6 +54,9 @@ namespace Pomodorre.WinUI
         public MainWindow()
         {
             InitializeComponent();
+#if DEBUG
+            BetaText.Visibility = Visibility.Visible;
+#endif
             StatisticsBinding.Instance.PropertyChanged += (_, __) =>
             {
                 DispatcherQueue.TryEnqueue(() => Bindings.Update());
