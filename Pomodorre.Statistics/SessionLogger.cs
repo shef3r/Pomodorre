@@ -23,7 +23,7 @@ namespace Pomodorre.Statistics
             await _lock.WaitAsync();
             try
             {
-                StorageFile file = await GetDailyFileAsync(dateKey);
+                StorageFile file = await HistoryTools.GetDailyFileAsync(dateKey);
                 string json = await FileIO.ReadTextAsync(file);
 
                 List<PomodoroSession> sessions =
@@ -51,38 +51,6 @@ namespace Pomodorre.Statistics
             {
                 _lock.Release();
             }
-        }
-
-        internal static async Task<StorageFile> GetDailyFileAsync(string date)
-        {
-            StorageFolder folder = ApplicationData.Current.LocalFolder;
-            StorageFile file = await folder.CreateFileAsync($"{date}.json", CreationCollisionOption.OpenIfExists);
-
-            string content = await FileIO.ReadTextAsync(file);
-            if (string.IsNullOrWhiteSpace(content))
-                await FileIO.WriteTextAsync(file, "[]");
-
-            return file;
-        }
-
-        public static async Task<Dictionary<DateTime, PomodoroSession[]>> GetSessionsAsync(DateTime startDate, DateTime endDate)
-        {
-            Dictionary<DateTime, PomodoroSession[]> db = new();
-
-            while (startDate <= endDate)
-            {
-                string dateKey = startDate.ToLocalTime().ToString("yy-MM-dd");
-                StorageFile file = await GetDailyFileAsync(dateKey);
-                string content = await FileIO.ReadTextAsync(file);
-
-                PomodoroSession[] sessions =
-                    JsonSerializer.Deserialize<PomodoroSession[]>(content) ?? Array.Empty<PomodoroSession>();
-
-                db[startDate] = sessions;
-                startDate = startDate.AddDays(1);
-            }
-
-            return db;
         }
     }
 }

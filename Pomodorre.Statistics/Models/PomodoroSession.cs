@@ -15,4 +15,18 @@ public class PomodoroSession
     public bool IsPaused { get; set; }
     public bool IsCompleted { get; set; }
     public bool IsCancelled { get; set; }
+
+    public string Status
+    {
+        get
+        {
+            if (IsCancelled)
+                return "Cancelled";
+            if (IsPaused)
+                return "Paused";
+            if (IsCompleted)
+                return "Completed";
+            return "In Progress";
+        }
+    }
 }

@@ -6,7 +6,11 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<UseWinUI>false</UseWinUI>
+		<ApplicationIcon>appicon.ico</ApplicationIcon>
 	</PropertyGroup>
+	<ItemGroup>
+	  <Content Include="appicon.ico" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Pomodorre.TimerCore\Pomodorre.TimerCore.csproj" />
