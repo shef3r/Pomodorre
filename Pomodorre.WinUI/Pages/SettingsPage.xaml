@@ -25,7 +25,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Style="{StaticResource DisplayTextBlockStyle}" FontSize="30">Settings</TextBlock>
                         <TextBlock Opacity="0.7" Grid.Column="1" TextAlignment="Right">
-            version vPLACEHOLDER<LineBreak/>created by shef3r.
+            v1.0-beta1<LineBreak/>created by shef3r.
                         </TextBlock>
                     </Grid>
                 </Grid>
@@ -35,7 +35,7 @@
                         <FontIcon Glyph="&#xE771;" />
                     </set:SettingsExpander.HeaderIcon>
                     <set:SettingsExpander.Items>
-                        <StackPanel Spacing="8" Margin="0,8,0,0">
+                        <StackPanel Spacing="8" Padding="20" Background="{ThemeResource LayerFillColorDefaultBrush}">
                             <RadioButton Content="System default" IsChecked="{x:Bind ViewModel.ThemeMode, Mode=OneWay, Converter={StaticResource StringEqualsConverter}, ConverterParameter=System}" Checked="ThemeRadio_Checked" Tag="System"/>
                             <RadioButton Content="Light" IsChecked="{x:Bind ViewModel.ThemeMode, Mode=OneWay, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Light}" Checked="ThemeRadio_Checked" Tag="Light"/>
                             <RadioButton Content="Dark" IsChecked="{x:Bind ViewModel.ThemeMode, Mode=OneWay, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Dark}" Checked="ThemeRadio_Checked" Tag="Dark"/>
@@ -49,7 +49,7 @@
                 </set:SettingsCard>
 
                 <TextBlock Style="{StaticResource DisplayTextBlockStyle}" FontSize="14" Margin="3,10,0,10">App Service</TextBlock>
-                <set:SettingsCard HeaderIcon="Share" Header="Announce timer status to compatible apps" Description="Enable App Service to broadcast timer updates to other applications.">
+                <set:SettingsCard IsEnabled="False" HeaderIcon="Share" Header="Announce timer status to compatible apps" Description="Enable App Service to broadcast timer updates to other applications.">
                     <ToggleSwitch IsOn="{x:Bind ViewModel.ExposeAppService, Mode=TwoWay}"/>
                 </set:SettingsCard>
 

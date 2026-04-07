@@ -137,7 +137,7 @@
                         <TextBlock Text="Home" Grid.Column="1" VerticalAlignment="Center" FontSize="14"/>
                     </Grid>
                 </ListViewItem>
-                <ListViewItem Style="{StaticResource PDSidebarNavItem}" Tag="Goals">
+                <ListViewItem Style="{StaticResource PDSidebarNavItem}" Tag="Goals" Visibility="Collapsed">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="30"/>
@@ -157,7 +157,7 @@
                         <TextBlock Text="History" Grid.Column="1" VerticalAlignment="Center" FontSize="14"/>
                     </Grid>
                 </ListViewItem>
-                <ListViewItem Style="{StaticResource PDSidebarNavItem}" Tag="Stats">
+                <ListViewItem Style="{StaticResource PDSidebarNavItem}" Tag="Stats" Visibility="Collapsed">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="30"/>
@@ -196,11 +196,10 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <FontIcon Glyph="" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" FontSize="16"/>
-                        <TextBlock Text="Stars" Grid.Column="1" VerticalAlignment="Center" FontSize="14"/>
+                        <TextBlock Text="Star store" Grid.Column="1" VerticalAlignment="Center" FontSize="14"/>
                         <TextBlock Text="{x:Bind statistics:StatisticsBinding.Instance.StarAmount, Mode=OneWay}" Margin="0,0,3,0" Grid.Column="2" VerticalAlignment="Center" FontSize="14" FontFamily="Segoe UI Variable Display" Foreground="{StaticResource AccentBrush1}" FontWeight="SemiBold"/>
                     </Grid>
                 </ListViewItem>
-                <!-- Unselectable streak item: disabled so it doesn't react to hover or click -->
                 <ListViewItem Style="{StaticResource PDSidebarNavItem}" IsEnabled="False" x:Name="StreakItem">
                     <Grid>
                         <Grid.ColumnDefinitions>

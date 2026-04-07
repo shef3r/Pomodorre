@@ -8,7 +8,31 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid HorizontalAlignment="Stretch" Height="300" Background="Red">
-
+    <Grid Padding="5">
+        <StackPanel Spacing="10">
+            <TextBlock FontSize="16" FontWeight="SemiBold">Your focus stats</TextBlock>
+            <ItemsRepeater x:Name="StatsList" ItemsSource="{x:Bind DayStats, Mode=OneWay}">
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" CornerRadius="8" Margin="0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock FontSize="14" VerticalAlignment="Center">
+                                <Run Text="{Binding Day}" FontWeight="SemiBold"/>
+                            </TextBlock>
+                            <StackPanel Orientation="Horizontal" Grid.Column="1" Spacing="8">
+                                <ProgressBar Value="{Binding Minutes}" Maximum="{Binding MaxMinutes}" Width="80" Height="6" VerticalAlignment="Center"/>
+                                <TextBlock FontSize="13" FontWeight="SemiBold" MinWidth="50" TextAlignment="Right">
+                                    <Run Text="{Binding Minutes}"/>
+                                    <Run Text="min" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+        </StackPanel>
     </Grid>
 </UserControl>

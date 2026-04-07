@@ -13,6 +13,10 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7705" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260209005" />
+		<PackageReference Include="LiveChartsCore.SkiaSharpView.WinUI" Version="2.0.0-rc6.1" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Pomodorre.Statistics\Pomodorre.Statistics.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="HomeTiles\StatsControl.xaml">

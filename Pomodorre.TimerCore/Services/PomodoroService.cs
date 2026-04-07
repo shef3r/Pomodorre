@@ -58,7 +58,7 @@ namespace Pomodorre.TimerCore.Services
             StartTimer();
             UpdateDebugInfo();
 
-            SessionLogger.LogOrUpdateSession(CurrentSession!);
+            _ = SessionLogger.LogOrUpdateSession(CurrentSession!);
 
             Console.WriteLine($"[START] Blocks={blocks}, Focus={focusMinutes}, Break={breakMinutes}");
         }
