@@ -8,6 +8,7 @@
 		<WinUISDKReferences>false</WinUISDKReferences>
 	</PropertyGroup>
 	<ItemGroup>
+	  <None Remove="HomeTiles\HistoryControl.xaml" />
 	  <None Remove="HomeTiles\StatsControl.xaml" />
 	</ItemGroup>
 	<ItemGroup>
@@ -17,6 +18,11 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\Pomodorre.Statistics\Pomodorre.Statistics.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="HomeTiles\HistoryControl.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="HomeTiles\StatsControl.xaml">

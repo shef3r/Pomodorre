@@ -63,6 +63,12 @@
                     </set:SettingsCard.HeaderIcon>
                     <ToggleSwitch IsOn="{x:Bind ViewModel.HomeItems.ShowSessionStats, Mode=TwoWay}"/>
                 </set:SettingsCard>
+                <set:SettingsCard Header="Show last week's sessions" Description="Display the last 7 days of session history on the home page.">
+                    <set:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE81C;" />
+                    </set:SettingsCard.HeaderIcon>
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.HomeItems.ShowHistoryStats, Mode=TwoWay}"/>
+                </set:SettingsCard>
             </StackPanel>
         </ScrollViewer>
     </Grid>

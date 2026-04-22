@@ -156,6 +156,12 @@ namespace Pomodorre.Tools
             set => Set(nameof(ShowSessionStats), value);
         }
 
+        public bool ShowHistoryStats
+        {
+            get => Get(nameof(ShowHistoryStats), true);
+            set => Set(nameof(ShowHistoryStats), value);
+        }
+
         private static T Get<T>(string key, T? defaultValue = default)
         {
             lock (Settings._sync)
