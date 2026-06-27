@@ -1,4 +1,4 @@
-﻿using Pomodorre.Statistics;
+using Pomodorre.Statistics;
 using Pomodorre.TimerCore;
 using Pomodorre.TimerCore.Services;
 using System.Globalization;
@@ -19,6 +19,7 @@ public class PipeServerHandler : IDisposable
 
         PomodoroService.Instance.Tick += OnServiceTick;
         PomodoroService.Instance.SessionCompleted += OnServiceCompleted;
+        PomodoroService.LogMessage += OnServiceLog;
     }
     private async Task SendMessageAsync(string message)
     {
@@ -74,8 +75,10 @@ public class PipeServerHandler : IDisposable
                 string time = session?.Remaining.ToString(@"mm\:ss") ?? "00:00";
                 double progress = PomodoroService.Instance.GetProgress();
                 bool isBreak = session?.IsBreak ?? false;
+                int currentBlock = session?.CurrentBlockIndex ?? 0;
+                int totalBlocks = session?.TotalBlocks ?? 0;
 
-                await SendMessageAsync($"{PipeProtocol.EVENT_STATUS}|{isActive}|{isPaused}|{time}|{progress.ToString(CultureInfo.InvariantCulture)}|{isBreak}");
+                await SendMessageAsync($"{PipeProtocol.EVENT_STATUS}|{isActive}|{isPaused}|{time}|{progress.ToString(CultureInfo.InvariantCulture)}|{isBreak}|{currentBlock}|{totalBlocks}");
                 break;
         }
     }
@@ -87,8 +90,11 @@ public class PipeServerHandler : IDisposable
         string time = session.Remaining.ToString(@"mm\:ss");
         double progress = PomodoroService.Instance.GetProgress();
         bool isBreak = session.IsBreak;
+        bool isPaused = session.IsPaused;
+        int currentBlock = session.CurrentBlockIndex;
+        int totalBlocks = session.TotalBlocks;
 
-        await SendMessageAsync($"{PipeProtocol.EVENT_TICK}|{time}|{progress.ToString(CultureInfo.InvariantCulture)}|{isBreak}");
+        await SendMessageAsync($"{PipeProtocol.EVENT_TICK}|{time}|{progress.ToString(CultureInfo.InvariantCulture)}|{isBreak}|{isPaused}|{currentBlock}|{totalBlocks}");
     }
 
     private async void OnServiceCompleted(object? sender, PomodoroSession e)
@@ -99,10 +105,16 @@ public class PipeServerHandler : IDisposable
         await SendMessageAsync($"{PipeProtocol.EVENT_COMPLETED}|{currentStars}");
     }
 
+    private async void OnServiceLog(object? sender, string message)
+    {
+        await SendMessageAsync($"{PipeProtocol.EVENT_LOG}|{message}");
+    }
+
     public void Dispose()
     {
         PomodoroService.Instance.Tick -= OnServiceTick;
         PomodoroService.Instance.SessionCompleted -= OnServiceCompleted;
+        PomodoroService.LogMessage -= OnServiceLog;
         _writeLock.Dispose();
     }
 }

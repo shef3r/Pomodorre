@@ -1,4 +1,4 @@
-﻿using Microsoft.Windows.AppNotifications;
+using Microsoft.Windows.AppNotifications;
 using Microsoft.Windows.AppNotifications.Builder;
 using Pomodorre.Statistics;
 using System;
@@ -17,6 +17,7 @@ namespace Pomodorre.TimerCore.Services
         public event EventHandler<string>? DebugInfoUpdated;
         public event EventHandler? Tick;
         public event EventHandler<PomodoroSession>? SessionCompleted;
+        public static event EventHandler<string>? LogMessage;
 
         public PomodoroSession? CurrentSession { get; private set; }
 
@@ -60,7 +61,7 @@ namespace Pomodorre.TimerCore.Services
 
             _ = SessionLogger.LogOrUpdateSession(CurrentSession!);
 
-            Console.WriteLine($"[START] Blocks={blocks}, Focus={focusMinutes}, Break={breakMinutes}");
+            LogMessage?.Invoke(null, $"[START] Blocks={blocks}, Focus={focusMinutes}, Break={breakMinutes}");
         }
 
         public void Pause()
@@ -73,7 +74,9 @@ namespace Pomodorre.TimerCore.Services
             UpdateDebugInfo();
             _ = SessionLogger.LogOrUpdateSession(CurrentSession);
 
-            Console.WriteLine("[PAUSE]");
+            Tick?.Invoke(this, EventArgs.Empty);
+
+            LogMessage?.Invoke(null, "[PAUSE]");
         }
 
         public void Resume()
@@ -91,7 +94,9 @@ namespace Pomodorre.TimerCore.Services
 
             _ = SessionLogger.LogOrUpdateSession(CurrentSession);
 
-            Console.WriteLine("[RESUME]");
+            Tick?.Invoke(this, EventArgs.Empty);
+
+            LogMessage?.Invoke(null, "[RESUME]");
         }
 
         public void Stop()
@@ -106,7 +111,7 @@ namespace Pomodorre.TimerCore.Services
             CurrentSession = null;
             DebugInfo = "[No active session]";
 
-            Console.WriteLine("[STOP]");
+            LogMessage?.Invoke(null, "[STOP]");
         }
 
         private void StartPhase(TimeSpan duration)
@@ -173,7 +178,7 @@ namespace Pomodorre.TimerCore.Services
 
                 s.IsBreak = true;
                 StartPhase(TimeSpan.FromMinutes(s.BreakMinutes));
-                Console.WriteLine("[PHASE] Break started");
+                LogMessage?.Invoke(null, "[PHASE] Break started");
             }
             else
             {
@@ -188,7 +193,7 @@ namespace Pomodorre.TimerCore.Services
                 }
 
                 StartPhase(TimeSpan.FromMinutes(s.FocusMinutes));
-                Console.WriteLine("[PHASE] Focus started");
+                LogMessage?.Invoke(null, "[PHASE] Focus started");
             }
             SendNotif(!wasBreak, (wasBreak ? s.FocusMinutes : s.BreakMinutes));
         }
@@ -223,22 +228,23 @@ namespace Pomodorre.TimerCore.Services
             AppNotificationManager.Default.Show(builder.BuildNotification());
         }
 
-        private void CompleteSession()
+        private async void CompleteSession()
         {
             _timer?.Dispose();
 
             var completed = CurrentSession!;
             completed.IsCompleted = true;
 
+            await SessionLogger.LogOrUpdateSession(completed);
+
             SessionCompleted?.Invoke(this, completed);
 
             SendNotif(null, -1);
-            _ = SessionLogger.LogOrUpdateSession(completed);
 
             CurrentSession = null;
             DebugInfo = "[Session complete]\nNo active session";
 
-            Console.WriteLine("[COMPLETE] Session finished");
+            LogMessage?.Invoke(null, "[COMPLETE] Session finished");
         }
 
         public double GetProgress()

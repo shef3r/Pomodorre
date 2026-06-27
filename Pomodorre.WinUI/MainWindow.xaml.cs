@@ -229,8 +229,13 @@ namespace Pomodorre.WinUI
                     FileName = serverExe,
                     Arguments = Process.GetCurrentProcess().Id.ToString(),
                     WorkingDirectory = AppContext.BaseDirectory,
+#if DEBUG
+                    UseShellExecute = true,
+                    CreateNoWindow = false
+#else
                     UseShellExecute = false,
                     CreateNoWindow = true
+#endif
                 });
             }
             catch (Exception ex)
@@ -316,6 +321,13 @@ namespace Pomodorre.WinUI
                                 _isSessionActive = false;
                                 SessionTimePrefix.Text = "Session will end by";
                                 SessionTimeText.Text = Settings.EndSessionTimeString;
+                                break;
+                                
+                            case PipeProtocol.EVENT_LOG:
+                                if (parts.Length > 1)
+                                {
+                                    System.Diagnostics.Trace.WriteLine($"[Worker] {parts[1]}");
+                                }
                                 break;
                         }
                     });

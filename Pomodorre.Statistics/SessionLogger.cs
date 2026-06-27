@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,11 +30,17 @@ namespace Pomodorre.Statistics
                     JsonSerializer.Deserialize<List<PomodoroSession>>(json) ?? new List<PomodoroSession>();
 
                 int index = sessions.FindIndex(s => s.Id == session.Id);
+                bool wasCompleted = false;
 
                 if (index >= 0)
+                {
+                    wasCompleted = sessions[index].IsCompleted;
                     sessions[index] = session;
+                }
                 else
+                {
                     sessions.Add(session);
+                }
 
                 string tempName = $"{dateKey}.tmp";
                 StorageFile tempFile = await ApplicationData.Current.LocalFolder.CreateFileAsync(tempName, CreationCollisionOption.ReplaceExisting);
@@ -44,7 +50,7 @@ namespace Pomodorre.Statistics
                 StorageFolder folder = ApplicationData.Current.LocalFolder;
                 await tempFile.RenameAsync($"{dateKey}.json", NameCollisionOption.ReplaceExisting);
 
-                if (session.IsCompleted)
+                if (session.IsCompleted && !wasCompleted)
                     Stars.Add((int)Math.Round(session.FocusMinutes * 0.5));
             }
             finally

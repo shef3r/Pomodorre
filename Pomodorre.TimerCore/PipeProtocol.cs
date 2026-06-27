@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,7 +16,8 @@ public static class PipeProtocol
     public const string CMD_STATUS = "STATUS_REQ";
 
     // z serwera
-    public const string EVENT_TICK = "TICK";     // TICK|remaining_mm:ss|progress_float
+    public const string EVENT_TICK = "TICK";     // TICK|remaining_mm:ss|progress_float|isBreak|isPaused|currentBlock|totalBlocks
     public const string EVENT_COMPLETED = "COMPLETED";
-    public const string EVENT_STATUS = "STATUS_RES"; // STATUS_RES|IsActive|IsPaused|Time|Progress
+    public const string EVENT_STATUS = "STATUS_RES"; // STATUS_RES|IsActive|IsPaused|Time|Progress|IsBreak|currentBlock|totalBlocks
+    public const string EVENT_LOG = "LOG";
 }

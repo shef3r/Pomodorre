@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Text.Json;
 using Windows.Storage;
@@ -56,6 +56,12 @@ namespace Pomodorre.Tools
             }
         }
 
+        public static string LastCrash
+        {
+            get => Get(nameof(LastCrash), "");
+            set => Set(nameof(LastCrash), value);
+        }
+
         public static string ThemeMode
         {
             get => Get(nameof(ThemeMode), "System");
@@ -70,7 +76,7 @@ namespace Pomodorre.Tools
 
         public static bool ExposeAppService
         {
-            get => Get(nameof(ExposeAppService), false);
+            get => Get(nameof(ExposeAppService), true);
             set => Set(nameof(ExposeAppService), value);
         }
 

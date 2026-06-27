@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -80,10 +80,25 @@ namespace Pomodorre.Statistics
                 if (history.Count == 0)
                     return 0;
 
-                var latestDay = history.Keys.Max().Date;
+                var today = DateTime.Now.Date;
+                var yesterday = today.AddDays(-1);
+
+                DateTime startDay;
+                if (history.TryGetValue(today, out bool doneToday) && doneToday)
+                {
+                    startDay = today;
+                }
+                else if (history.TryGetValue(yesterday, out bool doneYesterday) && doneYesterday)
+                {
+                    startDay = yesterday;
+                }
+                else
+                {
+                    return 0;
+                }
 
                 int streak = 0;
-                var day = latestDay;
+                var day = startDay;
 
                 while (history.TryGetValue(day, out bool done) && done)
                 {

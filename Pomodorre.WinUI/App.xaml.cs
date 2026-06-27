@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -50,6 +50,11 @@ namespace Pomodorre.WinUI
                 {
                     ApplyTheme();
                 }
+            };
+
+            UnhandledException += (s, e) =>
+            {
+                Pomodorre.Tools.Settings.LastCrash = e.Exception.ToString();
             };
 
             ApplyTheme();

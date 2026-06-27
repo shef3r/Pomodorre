@@ -188,7 +188,7 @@
                 <ListViewItem Tag="History" Visibility="Collapsed"/>
                 <ListViewItem Tag="Stats" Visibility="Collapsed"/>
 
-                <ListViewItem Style="{StaticResource PDSidebarNavItem}" Tag="Stars">
+                <ListViewItem Style="{StaticResource PDSidebarNavItem}" Tag="Stars" Visibility="Collapsed">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="30"/>

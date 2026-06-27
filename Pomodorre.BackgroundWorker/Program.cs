@@ -1,4 +1,4 @@
-﻿using System.IO.Pipes;
+using System.IO.Pipes;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,22 +34,45 @@ class Program
     {
         while (!cancellationToken.IsCancellationRequested)
         {
+            NamedPipeServerStream? serverPipe = null;
             try
             {
-                using var serverPipe = new NamedPipeServerStream(
+                serverPipe = new NamedPipeServerStream(
                     "PomodorrePipe",
                     PipeDirection.InOut,
-                    1,
+                    NamedPipeServerStream.MaxAllowedServerInstances,
                     PipeTransmissionMode.Byte,
                     PipeOptions.Asynchronous  // Use async I/O
                 );
 
                 await serverPipe.WaitForConnectionAsync(cancellationToken);
 
-                using var reader = new StreamReader(serverPipe);
-                using var writer = new StreamWriter(serverPipe) { AutoFlush = true };
+                // Fire and forget
+                _ = HandleClientAsync(serverPipe, cancellationToken);
+                serverPipe = null;
+            }
+            catch (OperationCanceledException)
+            {
+                serverPipe?.Dispose();
+                break;
+            }
+            catch (Exception ex)
+            {
+                serverPipe?.Dispose();
+                await Task.Delay(1000, cancellationToken);
+            }
+        }
+    }
 
-                var handler = new PipeServerHandler(writer);
+    private static async Task HandleClientAsync(NamedPipeServerStream serverPipe, CancellationToken cancellationToken)
+    {
+        try
+        {
+            using (serverPipe)
+            using (var reader = new StreamReader(serverPipe))
+            using (var writer = new StreamWriter(serverPipe) { AutoFlush = true })
+            {
+                using var handler = new PipeServerHandler(writer);
 
                 while (serverPipe.IsConnected && !cancellationToken.IsCancellationRequested)
                 {
@@ -64,18 +87,11 @@ class Program
 
                     await handler.HandleCommand(line);
                 }
-
-                handler.Dispose();
             }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-            catch (Exception ex)
-            {
-                // Log error (optional) and wait before retrying
-                await Task.Delay(1000, cancellationToken);
-            }
+        }
+        catch (Exception)
+        {
+            // Client disconnected or error occurred
         }
     }
 }
