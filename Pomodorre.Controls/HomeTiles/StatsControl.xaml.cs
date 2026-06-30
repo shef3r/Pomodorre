@@ -22,6 +22,11 @@ namespace Pomodorre.Controls.HomeTiles
         public StatsControl()
         {
             InitializeComponent();
+            try {
+                var rl = new Microsoft.Windows.ApplicationModel.Resources.ResourceLoader();
+                TitleText.Text = rl.GetString("StatsTitle/Text");
+                EmptyText.Text = rl.GetString("StatsEmpty/Text");
+            } catch { }
             SetupChart();
             _ = LoadWeeklyStats();
         }

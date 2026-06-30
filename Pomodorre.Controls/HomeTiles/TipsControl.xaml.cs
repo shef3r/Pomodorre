@@ -1,31 +1,43 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml;
+using System;
+using Microsoft.Windows.ApplicationModel.Resources;
 
 namespace Pomodorre.Controls.HomeTiles
 {
     public sealed partial class TipsControl : UserControl
     {
-        private static readonly string[] _tips = new[]
-        {
-            "Take short breaks often to keep your mind fresh and maintain high productivity over time.",
-            "Use the 20-20-20 rule: every 20 minutes, look at something 20 feet away for 20 seconds.",
-            "Eliminate distractions during focus blocks. Turn on 'Do Not Disturb' on your devices.",
-            "Set clear, actionable goals before starting a timer.",
-            "Stay hydrated! Keep a glass of water on your desk.",
-            "Try planning your most demanding tasks for your peak energy hours.",
-            "Review your weekly stats to identify patterns in your focus behavior."
-        };
+        private readonly DispatcherTimer _timer;
+        private readonly ResourceLoader _resourceLoader;
+        private const int MaxTips = 7;
+        private readonly System.Random _random = new System.Random();
 
         public TipsControl()
         {
             InitializeComponent();
+            _resourceLoader = new ResourceLoader();
+            try { TitleText.Text = _resourceLoader.GetString("TipsTitle/Text"); } catch { }
             LoadRandomTip();
+
+            _timer = new DispatcherTimer();
+            _timer.Interval = TimeSpan.FromSeconds(10);
+            _timer.Tick += (s, e) => LoadRandomTip();
+            _timer.Start();
         }
 
         private void LoadRandomTip()
         {
-            var random = new System.Random();
-            var index = random.Next(_tips.Length);
-            TipText.Text = _tips[index];
+            var index = _random.Next(1, MaxTips + 1);
+            
+            try
+            {
+                var tipText = _resourceLoader.GetString($"Tip{index}_Text");
+                if (!string.IsNullOrEmpty(tipText))
+                {
+                    TipText.Text = tipText;
+                }
+            }
+            catch { }
         }
     }
 }

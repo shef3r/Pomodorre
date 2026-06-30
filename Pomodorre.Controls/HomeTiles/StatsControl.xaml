@@ -10,20 +10,22 @@
 
     <Grid Padding="5">
         <StackPanel Spacing="10">
-            <TextBlock FontSize="16" FontWeight="SemiBold">Your focus stats</TextBlock>
+            <TextBlock x:Name="TitleText" FontSize="16" FontWeight="SemiBold" />
             <Grid Padding="16" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8">
-                <Grid Height="200">
-                    <TextBlock x:Name="EmptyText" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="No stats available for this week." />
+                <Grid MaxHeight="200">
+                    <TextBlock x:Name="EmptyText" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                     
                     <lvc:CartesianChart
                         x:Name="Chart"
                         Series="{x:Bind Series, Mode=OneWay}"
                         XAxes="{x:Bind XAxes, Mode=OneWay}"
                         YAxes="{x:Bind YAxes, Mode=OneWay}"
-                        TooltipPosition="Top">
+                        TooltipPosition="Top" MaxHeight="200">
                     </lvc:CartesianChart>
                 </Grid>
             </Grid>
         </StackPanel>
     </Grid>
 </UserControl>
+
+

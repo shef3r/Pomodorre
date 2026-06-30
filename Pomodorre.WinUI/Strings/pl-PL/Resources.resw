@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppTitle.Text" xml:space="preserve"><value></value><comment>Pomodorre</comment></data>
+  <data name="BetaLabel.Text" xml:space="preserve"><value></value><comment>BETA</comment></data>
+  <data name="StartStopText.Text" xml:space="preserve"><value></value><comment>Start</comment></data>
+  <data name="SessionTimePrefix.Text" xml:space="preserve"><value></value><comment>Session will end by</comment></data>
+  <data name="FocusBlockBox.Header" xml:space="preserve"><value></value><comment>Focus blocks</comment></data>
+  <data name="BlocksLabel.Text" xml:space="preserve"><value></value><comment>blocks</comment></data>
+  <data name="RestBlockMinsBox.Header" xml:space="preserve"><value></value><comment>Rest block time</comment></data>
+  <data name="MinutesLabel.Text" xml:space="preserve"><value></value><comment>minutes</comment></data>
+  <data name="FocusBlockMinsBox.Header" xml:space="preserve"><value></value><comment>Focus block time</comment></data>
+  <data name="MinuteToggleText.Text" xml:space="preserve"><value></value><comment>Customize</comment></data>
+  <data name="NavDebug.Text" xml:space="preserve"><value></value><comment>Debug</comment></data>
+  <data name="NavHome.Text" xml:space="preserve"><value></value><comment>Home</comment></data>
+  <data name="NavGoals.Text" xml:space="preserve"><value></value><comment>Goals</comment></data>
+  <data name="NavHistory.Text" xml:space="preserve"><value></value><comment>History</comment></data>
+  <data name="NavStats.Text" xml:space="preserve"><value></value><comment>Statistics</comment></data>
+  <data name="NavStars.Text" xml:space="preserve"><value></value><comment>Star store</comment></data>
+  <data name="NavStreak.Text" xml:space="preserve"><value></value><comment>Streak</comment></data>
+  <data name="NavSettings.Text" xml:space="preserve"><value></value><comment>Settings</comment></data>
+  <data name="WelcomeMessage.Text" xml:space="preserve"><value></value><comment>Ready to conquer the day?</comment></data>
+  <data name="SettingsTitle.Text" xml:space="preserve"><value></value><comment>Settings</comment></data>
+  <data name="SettingsAppearance.Text" xml:space="preserve"><value></value><comment>Appearance</comment></data>
+  <data name="SettingsTheme.Header" xml:space="preserve"><value></value><comment>Theme</comment></data>
+  <data name="SettingsTheme.Description" xml:space="preserve"><value></value><comment>Choose your preferred color scheme.</comment></data>
+  <data name="ThemeSystem.Content" xml:space="preserve"><value></value><comment>System default</comment></data>
+  <data name="ThemeLight.Content" xml:space="preserve"><value></value><comment>Light</comment></data>
+  <data name="ThemeDark.Content" xml:space="preserve"><value></value><comment>Dark</comment></data>
+  <data name="SettingsBehavior.Text" xml:space="preserve"><value></value><comment>Behavior</comment></data>
+  <data name="SettingsKillProcess.Header" xml:space="preserve"><value></value><comment>Kill background process on exit</comment></data>
+  <data name="SettingsKillProcess.Description" xml:space="preserve"><value></value><comment>Stop the background worker when closing the app with an active session.</comment></data>
+  <data name="SettingsAppService.Text" xml:space="preserve"><value></value><comment>App Service</comment></data>
+  <data name="SettingsAnnounce.Header" xml:space="preserve"><value></value><comment>Announce timer status to compatible apps</comment></data>
+  <data name="SettingsAnnounce.Description" xml:space="preserve"><value></value><comment>Enable App Service to broadcast timer updates to other applications.</comment></data>
+  <data name="SettingsHomeItems.Text" xml:space="preserve"><value></value><comment>Manage Home Items</comment></data>
+  <data name="SettingsShowWelcome.Header" xml:space="preserve"><value></value><comment>Show welcome message</comment></data>
+  <data name="SettingsShowWelcome.Description" xml:space="preserve"><value></value><comment>Display a welcome message on the home page.</comment></data>
+  <data name="SettingsShowStats.Header" xml:space="preserve"><value></value><comment>Show session stats</comment></data>
+  <data name="SettingsShowStats.Description" xml:space="preserve"><value></value><comment>Display session statistics on the home page.</comment></data>
+  <data name="SettingsShowHistory.Header" xml:space="preserve"><value></value><comment>Show last week's sessions</comment></data>
+  <data name="SettingsShowHistory.Description" xml:space="preserve"><value></value><comment>Display the last 7 days of session history on the home page.</comment></data>
+  <data name="SettingsShowQuote.Header" xml:space="preserve"><value></value><comment>Show quote of the day</comment></data>
+  <data name="SettingsShowQuote.Description" xml:space="preserve"><value></value><comment>Display an inspiring quote on the home page.</comment></data>
+  <data name="SettingsShowTips.Header" xml:space="preserve"><value></value><comment>Show pro tips</comment></data>
+  <data name="SettingsShowTips.Description" xml:space="preserve"><value></value><comment>Display productivity tips on the home page.</comment></data>
+  <data name="SettingsShowGoals.Header" xml:space="preserve"><value></value><comment>Show daily goal</comment></data>
+  <data name="SettingsShowGoals.Description" xml:space="preserve"><value></value><comment>Display your daily goal progress on the home page.</comment></data>
+  <data name="StatsTitle.Text" xml:space="preserve"><value></value><comment>Your focus stats</comment></data>
+  <data name="StatsEmpty.Text" xml:space="preserve"><value></value><comment>No stats available for this week.</comment></data>
+  <data name="HistoryTitle.Text" xml:space="preserve"><value></value><comment>Recent sessions</comment></data>
+  <data name="HistoryEmpty.Text" xml:space="preserve"><value></value><comment>No recent sessions.</comment></data>
+  <data name="QuoteTitle.Text" xml:space="preserve"><value></value><comment>Quote of the day</comment></data>
+  <data name="QuoteLoading.Text" xml:space="preserve"><value></value><comment>Loading quote...</comment></data>
+  <data name="TipsTitle.Text" xml:space="preserve"><value></value><comment>Pro tip</comment></data>
+  <data name="TipsLoading.Text" xml:space="preserve"><value></value><comment>Loading tip...</comment></data>
+  <data name="GoalsTitle.Text" xml:space="preserve"><value></value><comment>Daily goal</comment></data>
+  <data name="GoalsSubtitle.Text" xml:space="preserve"><value></value><comment>4 Focus Sessions</comment></data>
+  <data name="GoalsProgress.Text" xml:space="preserve"><value></value><comment>2 / 4 completed</comment></data>
+  <data name="Quote1_Text" xml:space="preserve"><value></value><comment>Focus on being productive instead of busy.</comment></data>
+  <data name="Quote1_Author" xml:space="preserve"><value></value><comment>Tim Ferriss</comment></data>
+  <data name="Quote2_Text" xml:space="preserve"><value></value><comment>Starve your distractions, feed your focus.</comment></data>
+  <data name="Quote2_Author" xml:space="preserve"><value></value><comment>Unknown</comment></data>
+  <data name="Quote3_Text" xml:space="preserve"><value></value><comment>The successful warrior is the average man, with laser-like focus.</comment></data>
+  <data name="Quote3_Author" xml:space="preserve"><value></value><comment>Bruce Lee</comment></data>
+  <data name="Quote4_Text" xml:space="preserve"><value></value><comment>Concentrate all your thoughts upon the work at hand. The sun's rays do not burn until brought to a focus.</comment></data>
+  <data name="Quote4_Author" xml:space="preserve"><value></value><comment>Alexander Graham Bell</comment></data>
+  <data name="Quote5_Text" xml:space="preserve"><value></value><comment>It’s not always that we need to do more but rather that we need to focus on less.</comment></data>
+  <data name="Quote5_Author" xml:space="preserve"><value></value><comment>Nathan W. Morris</comment></data>
+  <data name="Tip1_Text" xml:space="preserve"><value></value><comment>Take short breaks often to keep your mind fresh and maintain high productivity over time.</comment></data>
+  <data name="Tip2_Text" xml:space="preserve"><value></value><comment>Use the 20-20-20 rule: every 20 minutes, look at something 20 feet away for 20 seconds.</comment></data>
+  <data name="Tip3_Text" xml:space="preserve"><value></value><comment>Eliminate distractions during focus blocks. Turn on 'Do Not Disturb' on your devices.</comment></data>
+  <data name="Tip4_Text" xml:space="preserve"><value></value><comment>Set clear, actionable goals before starting a timer.</comment></data>
+  <data name="Tip5_Text" xml:space="preserve"><value></value><comment>Stay hydrated! Keep a glass of water on your desk.</comment></data>
+  <data name="Tip6_Text" xml:space="preserve"><value></value><comment>Try planning your most demanding tasks for your peak energy hours.</comment></data>
+  <data name="Tip7_Text" xml:space="preserve"><value></value><comment>Review your weekly stats to identify patterns in your focus behavior.</comment></data>
+</root>

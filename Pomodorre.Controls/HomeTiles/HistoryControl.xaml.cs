@@ -22,6 +22,11 @@ namespace Pomodorre.Controls.HomeTiles
         public HistoryControl()
         {
             InitializeComponent();
+            try {
+                var rl = new Microsoft.Windows.ApplicationModel.Resources.ResourceLoader();
+                TitleText.Text = rl.GetString("HistoryTitle/Text");
+                EmptyText.Text = rl.GetString("HistoryEmpty/Text");
+            } catch { }
             _ = LoadHistoryAsync();
         }
 
