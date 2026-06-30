@@ -46,11 +46,12 @@ namespace Pomodorre.Controls.HomeTiles
                     HistoryStats.Clear();
                     foreach (var session in recent)
                     {
-                        string timeFormat = session.StartedAtUtc.ToLocalTime().ToString("MMM d, h:mm tt");
+                        var rl = new Microsoft.Windows.ApplicationModel.Resources.ResourceLoader();
+                        string timeFormat = session.StartedAtUtc.ToLocalTime().ToString("g");
                         
                         HistoryStats.Add(new DetailedSession
                         {
-                            Status = session.Status,
+                            Status = rl.GetString("Status" + session.Status.Replace(" ", "")),
                             TimeStr = timeFormat,
                             FocusMins = session.FocusMinutes
                         });

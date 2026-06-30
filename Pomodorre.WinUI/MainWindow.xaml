@@ -137,16 +137,6 @@
                         <TextBlock x:Uid="NavHome" Grid.Column="1" VerticalAlignment="Center" FontSize="14"/>
                     </Grid>
                 </ListViewItem>
-                <ListViewItem Style="{StaticResource PDSidebarNavItem}" Tag="Goals" Visibility="Collapsed">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="30"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <FontIcon Glyph="" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" FontSize="16"/>
-                        <TextBlock x:Uid="NavGoals" Grid.Column="1" VerticalAlignment="Center" FontSize="14"/>
-                    </Grid>
-                </ListViewItem>
                 <ListViewItem Style="{StaticResource PDSidebarNavItem}" Tag="History">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -184,7 +174,6 @@
                 
                 <ListViewItem Tag="Debug" Visibility="Collapsed"/>
                 <ListViewItem Tag="Home" Visibility="Collapsed"/>
-                <ListViewItem Tag="Goals" Visibility="Collapsed"/>
                 <ListViewItem Tag="History" Visibility="Collapsed"/>
                 <ListViewItem Tag="Stats" Visibility="Collapsed"/>
 

@@ -24,6 +24,8 @@ namespace Pomodorre.WinUI
 {
     public sealed partial class MainWindow : Window
     {
+        private readonly Microsoft.Windows.ApplicationModel.Resources.ResourceLoader _resourceLoader = new();
+
         private NamedPipeClientStream? _pipeClient;
         private StreamWriter? _pipeWriter;
         private bool _isSessionActive = false;
@@ -108,7 +110,6 @@ namespace Pomodorre.WinUI
             {
                 "Debug" => typeof(DebugPage),
                 "Home" => typeof(HomePage),
-                "Goals" => typeof(GoalsPage),
                 "History" => typeof(HistoryPage),
                 "Stars" => typeof(StarsPage),
                 "Stats" => typeof(StatsPage),
@@ -133,7 +134,7 @@ namespace Pomodorre.WinUI
         {
             SessionButton.IsEnabled = false;
             ContentFrame.IsEnabled = false;
-            StartStopText.Text = "Initializing...";
+            StartStopText.Text = _resourceLoader.GetString("StartStopInitializing");
             StartStopSymbol.Visibility = Visibility.Collapsed;
             this.Activated -= MainWindow_Activated;
 
@@ -276,12 +277,12 @@ namespace Pomodorre.WinUI
 
                                     if (_isSessionActive)
                                     {
-                                        SessionTimePrefix.Text = string.Format("{0} block ends in", [_isBreak ? "Break" : "Focus"]);
+                                        SessionTimePrefix.Text = _isBreak ? _resourceLoader.GetString("SessionTimePrefixBreak") : _resourceLoader.GetString("SessionTimePrefixFocus");
                                         SessionTimeText.Text = parts[3];
                                     }
                                     else
                                     {
-                                        SessionTimePrefix.Text = "Session will end by";
+                                        SessionTimePrefix.Text = _resourceLoader.GetString("SessionTimePrefixEnd");
                                         SessionTimeText.Text = Settings.EndSessionTimeString;
                                     }
                                     break;
@@ -293,7 +294,7 @@ namespace Pomodorre.WinUI
                                     UpdateStartButtonUI(_isSessionActive, _isPaused);
                                     _isBreak = bool.Parse(parts[3]);
 
-                                    SessionTimePrefix.Text = $"{(_isBreak ? "Break" : "Focus")} block ends in";
+                                    SessionTimePrefix.Text = _isBreak ? _resourceLoader.GetString("SessionTimePrefixBreak") : _resourceLoader.GetString("SessionTimePrefixFocus");
                                     SessionTimeText.Text = parts[1];
 
                                     if (ContentFrame.Content is FocusPage focusPage)
@@ -319,7 +320,7 @@ namespace Pomodorre.WinUI
                                     });
                                 }
                                 _isSessionActive = false;
-                                SessionTimePrefix.Text = "Session will end by";
+                                SessionTimePrefix.Text = _resourceLoader.GetString("SessionTimePrefixEnd");
                                 SessionTimeText.Text = Settings.EndSessionTimeString;
                                 break;
                                 
@@ -409,7 +410,7 @@ namespace Pomodorre.WinUI
             if (!active)
             {
                 StartStopSymbol.Symbol = Symbol.Play;
-                StartStopText.Text = "Start";
+                StartStopText.Text = _resourceLoader.GetString("StartStopStart");
                 FocusBlockBox.IsEnabled = true;
                 FocusBlockMinsBox.IsEnabled = true;
                 FocusBlockOverlay.Opacity = 1;
@@ -420,12 +421,12 @@ namespace Pomodorre.WinUI
 
                 MinuteToggle.IsEnabled = true;
                 MinuteToggleChevron.Glyph = "";
-                MinuteToggleText.Text = "Customize";
+                MinuteToggleText.Text = _resourceLoader.GetString("MinuteToggleCustomize");
             }
             else
             {
                 StartStopSymbol.Symbol = paused ? Symbol.Play : Symbol.Pause;
-                StartStopText.Text = paused ? "Resume" : "Pause";
+                StartStopText.Text = paused ? _resourceLoader.GetString("StartStopResume") : _resourceLoader.GetString("StartStopPause");
                 FocusBlockBox.IsEnabled = false;
                 FocusBlockMinsBox.IsEnabled = false;
                 FocusBlockOverlay.Opacity = 0.4;
@@ -436,7 +437,7 @@ namespace Pomodorre.WinUI
 
                 MinuteToggle.IsEnabled = true;
                 MinuteToggleChevron.Glyph = "";
-                MinuteToggleText.Text = "Cancel session";
+                MinuteToggleText.Text = _resourceLoader.GetString("MinuteToggleCancel");
             }
 
         }
@@ -504,10 +505,10 @@ namespace Pomodorre.WinUI
                     {
                         var dlg = new ContentDialog
                         {
-                            Title = "Session running",
-                            Content = "A session is running in the background. Stop it and exit?",
-                            PrimaryButtonText = "Exit & Stop",
-                            CloseButtonText = "Keep Running & Close UI"
+                            Title = _resourceLoader.GetString("SessionRunningTitle"),
+                            Content = _resourceLoader.GetString("SessionRunningContent"),
+                            PrimaryButtonText = _resourceLoader.GetString("SessionRunningPrimary"),
+                            CloseButtonText = _resourceLoader.GetString("SessionRunningClose")
                         };
 
                         try

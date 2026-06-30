@@ -16,7 +16,7 @@
                     <ItemsRepeater x:Name="StatsList" ItemsSource="{x:Bind HistoryStats, Mode=OneWay}">
                         <ItemsRepeater.ItemTemplate>
                             <DataTemplate>
-                                <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}" CornerRadius="4" Margin="0,4" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                                <Grid Padding="12" Margin="0" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
@@ -31,7 +31,7 @@
 
                                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="4">
                                         <TextBlock FontSize="16" FontWeight="Bold" Text="{Binding FocusMins}" />
-                                        <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="min" VerticalAlignment="Bottom" Margin="0,0,0,2"/>
+                                        <TextBlock x:Uid="HistoryControlMin" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Bottom" Margin="0,0,0,2"/>
                                     </StackPanel>
                                 </Grid>
                             </DataTemplate>

@@ -1,5 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -58,77 +117,347 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AppTitle.Text" xml:space="preserve"><value></value><comment>Pomodorre</comment></data>
-  <data name="BetaLabel.Text" xml:space="preserve"><value></value><comment>BETA</comment></data>
-  <data name="StartStopText.Text" xml:space="preserve"><value></value><comment>Start</comment></data>
-  <data name="SessionTimePrefix.Text" xml:space="preserve"><value></value><comment>Session will end by</comment></data>
-  <data name="FocusBlockBox.Header" xml:space="preserve"><value></value><comment>Focus blocks</comment></data>
-  <data name="BlocksLabel.Text" xml:space="preserve"><value></value><comment>blocks</comment></data>
-  <data name="RestBlockMinsBox.Header" xml:space="preserve"><value></value><comment>Rest block time</comment></data>
-  <data name="MinutesLabel.Text" xml:space="preserve"><value></value><comment>minutes</comment></data>
-  <data name="FocusBlockMinsBox.Header" xml:space="preserve"><value></value><comment>Focus block time</comment></data>
-  <data name="MinuteToggleText.Text" xml:space="preserve"><value></value><comment>Customize</comment></data>
-  <data name="NavDebug.Text" xml:space="preserve"><value></value><comment>Debug</comment></data>
-  <data name="NavHome.Text" xml:space="preserve"><value></value><comment>Home</comment></data>
-  <data name="NavGoals.Text" xml:space="preserve"><value></value><comment>Goals</comment></data>
-  <data name="NavHistory.Text" xml:space="preserve"><value></value><comment>History</comment></data>
-  <data name="NavStats.Text" xml:space="preserve"><value></value><comment>Statistics</comment></data>
-  <data name="NavStars.Text" xml:space="preserve"><value></value><comment>Star store</comment></data>
-  <data name="NavStreak.Text" xml:space="preserve"><value></value><comment>Streak</comment></data>
-  <data name="NavSettings.Text" xml:space="preserve"><value></value><comment>Settings</comment></data>
-  <data name="WelcomeMessage.Text" xml:space="preserve"><value></value><comment>Ready to conquer the day?</comment></data>
-  <data name="SettingsTitle.Text" xml:space="preserve"><value></value><comment>Settings</comment></data>
-  <data name="SettingsAppearance.Text" xml:space="preserve"><value></value><comment>Appearance</comment></data>
-  <data name="SettingsTheme.Header" xml:space="preserve"><value></value><comment>Theme</comment></data>
-  <data name="SettingsTheme.Description" xml:space="preserve"><value></value><comment>Choose your preferred color scheme.</comment></data>
-  <data name="ThemeSystem.Content" xml:space="preserve"><value></value><comment>System default</comment></data>
-  <data name="ThemeLight.Content" xml:space="preserve"><value></value><comment>Light</comment></data>
-  <data name="ThemeDark.Content" xml:space="preserve"><value></value><comment>Dark</comment></data>
-  <data name="SettingsBehavior.Text" xml:space="preserve"><value></value><comment>Behavior</comment></data>
-  <data name="SettingsKillProcess.Header" xml:space="preserve"><value></value><comment>Kill background process on exit</comment></data>
-  <data name="SettingsKillProcess.Description" xml:space="preserve"><value></value><comment>Stop the background worker when closing the app with an active session.</comment></data>
-  <data name="SettingsAppService.Text" xml:space="preserve"><value></value><comment>App Service</comment></data>
-  <data name="SettingsAnnounce.Header" xml:space="preserve"><value></value><comment>Announce timer status to compatible apps</comment></data>
-  <data name="SettingsAnnounce.Description" xml:space="preserve"><value></value><comment>Enable App Service to broadcast timer updates to other applications.</comment></data>
-  <data name="SettingsHomeItems.Text" xml:space="preserve"><value></value><comment>Manage Home Items</comment></data>
-  <data name="SettingsShowWelcome.Header" xml:space="preserve"><value></value><comment>Show welcome message</comment></data>
-  <data name="SettingsShowWelcome.Description" xml:space="preserve"><value></value><comment>Display a welcome message on the home page.</comment></data>
-  <data name="SettingsShowStats.Header" xml:space="preserve"><value></value><comment>Show session stats</comment></data>
-  <data name="SettingsShowStats.Description" xml:space="preserve"><value></value><comment>Display session statistics on the home page.</comment></data>
-  <data name="SettingsShowHistory.Header" xml:space="preserve"><value></value><comment>Show last week's sessions</comment></data>
-  <data name="SettingsShowHistory.Description" xml:space="preserve"><value></value><comment>Display the last 7 days of session history on the home page.</comment></data>
-  <data name="SettingsShowQuote.Header" xml:space="preserve"><value></value><comment>Show quote of the day</comment></data>
-  <data name="SettingsShowQuote.Description" xml:space="preserve"><value></value><comment>Display an inspiring quote on the home page.</comment></data>
-  <data name="SettingsShowTips.Header" xml:space="preserve"><value></value><comment>Show pro tips</comment></data>
-  <data name="SettingsShowTips.Description" xml:space="preserve"><value></value><comment>Display productivity tips on the home page.</comment></data>
-  <data name="SettingsShowGoals.Header" xml:space="preserve"><value></value><comment>Show daily goal</comment></data>
-  <data name="SettingsShowGoals.Description" xml:space="preserve"><value></value><comment>Display your daily goal progress on the home page.</comment></data>
-  <data name="StatsTitle.Text" xml:space="preserve"><value></value><comment>Your focus stats</comment></data>
-  <data name="StatsEmpty.Text" xml:space="preserve"><value></value><comment>No stats available for this week.</comment></data>
-  <data name="HistoryTitle.Text" xml:space="preserve"><value></value><comment>Recent sessions</comment></data>
-  <data name="HistoryEmpty.Text" xml:space="preserve"><value></value><comment>No recent sessions.</comment></data>
-  <data name="QuoteTitle.Text" xml:space="preserve"><value></value><comment>Quote of the day</comment></data>
-  <data name="QuoteLoading.Text" xml:space="preserve"><value></value><comment>Loading quote...</comment></data>
-  <data name="TipsTitle.Text" xml:space="preserve"><value></value><comment>Pro tip</comment></data>
-  <data name="TipsLoading.Text" xml:space="preserve"><value></value><comment>Loading tip...</comment></data>
-  <data name="GoalsTitle.Text" xml:space="preserve"><value></value><comment>Daily goal</comment></data>
-  <data name="GoalsSubtitle.Text" xml:space="preserve"><value></value><comment>4 Focus Sessions</comment></data>
-  <data name="GoalsProgress.Text" xml:space="preserve"><value></value><comment>2 / 4 completed</comment></data>
-  <data name="Quote1_Text" xml:space="preserve"><value></value><comment>Focus on being productive instead of busy.</comment></data>
-  <data name="Quote1_Author" xml:space="preserve"><value></value><comment>Tim Ferriss</comment></data>
-  <data name="Quote2_Text" xml:space="preserve"><value></value><comment>Starve your distractions, feed your focus.</comment></data>
-  <data name="Quote2_Author" xml:space="preserve"><value></value><comment>Unknown</comment></data>
-  <data name="Quote3_Text" xml:space="preserve"><value></value><comment>The successful warrior is the average man, with laser-like focus.</comment></data>
-  <data name="Quote3_Author" xml:space="preserve"><value></value><comment>Bruce Lee</comment></data>
-  <data name="Quote4_Text" xml:space="preserve"><value></value><comment>Concentrate all your thoughts upon the work at hand. The sun's rays do not burn until brought to a focus.</comment></data>
-  <data name="Quote4_Author" xml:space="preserve"><value></value><comment>Alexander Graham Bell</comment></data>
-  <data name="Quote5_Text" xml:space="preserve"><value></value><comment>It’s not always that we need to do more but rather that we need to focus on less.</comment></data>
-  <data name="Quote5_Author" xml:space="preserve"><value></value><comment>Nathan W. Morris</comment></data>
-  <data name="Tip1_Text" xml:space="preserve"><value></value><comment>Take short breaks often to keep your mind fresh and maintain high productivity over time.</comment></data>
-  <data name="Tip2_Text" xml:space="preserve"><value></value><comment>Use the 20-20-20 rule: every 20 minutes, look at something 20 feet away for 20 seconds.</comment></data>
-  <data name="Tip3_Text" xml:space="preserve"><value></value><comment>Eliminate distractions during focus blocks. Turn on 'Do Not Disturb' on your devices.</comment></data>
-  <data name="Tip4_Text" xml:space="preserve"><value></value><comment>Set clear, actionable goals before starting a timer.</comment></data>
-  <data name="Tip5_Text" xml:space="preserve"><value></value><comment>Stay hydrated! Keep a glass of water on your desk.</comment></data>
-  <data name="Tip6_Text" xml:space="preserve"><value></value><comment>Try planning your most demanding tasks for your peak energy hours.</comment></data>
-  <data name="Tip7_Text" xml:space="preserve"><value></value><comment>Review your weekly stats to identify patterns in your focus behavior.</comment></data>
+  <data name="AppTitle.Text" xml:space="preserve">
+    <value>Pomodorre</value>
+    <comment>Pomodorre</comment>
+  </data>
+  <data name="BetaLabel.Text" xml:space="preserve">
+    <value>BETA</value>
+    <comment>BETA</comment>
+  </data>
+  <data name="StartStopText.Text" xml:space="preserve">
+    <value>Uruchom</value>
+    <comment>Start</comment>
+  </data>
+  <data name="SessionTimePrefix.Text" xml:space="preserve">
+    <value>Sesja się zakończy o</value>
+    <comment>Session will end by</comment>
+  </data>
+  <data name="FocusBlockBox.Header" xml:space="preserve">
+    <value>Bloki skupienia</value>
+    <comment>Focus blocks</comment>
+  </data>
+  <data name="BlocksLabel.Text" xml:space="preserve">
+    <value>blok(i/ów)</value>
+    <comment>blocks</comment>
+  </data>
+  <data name="RestBlockMinsBox.Header" xml:space="preserve">
+    <value>Czas bloku spoczynku</value>
+    <comment>Rest block time</comment>
+  </data>
+  <data name="MinutesLabel.Text" xml:space="preserve">
+    <value>minut(a)</value>
+    <comment>minutes</comment>
+  </data>
+  <data name="FocusBlockMinsBox.Header" xml:space="preserve">
+    <value>Czas bloku skupienia</value>
+    <comment>Focus block time</comment>
+  </data>
+  <data name="MinuteToggleText.Text" xml:space="preserve">
+    <value>Dostosuj</value>
+    <comment>Customize</comment>
+  </data>
+  <data name="NavDebug.Text" xml:space="preserve">
+    <value>Debuguj</value>
+    <comment>Debug</comment>
+  </data>
+  <data name="NavHome.Text" xml:space="preserve">
+    <value>Twój panel</value>
+    <comment>Home</comment>
+  </data>
+  <data name="NavHistory.Text" xml:space="preserve">
+    <value>Historia</value>
+    <comment>History</comment>
+  </data>
+  <data name="NavStats.Text" xml:space="preserve">
+    <value>Statystyki</value>
+    <comment>Statistics</comment>
+  </data>
+  <data name="NavStars.Text" xml:space="preserve">
+    <value>Sklep gwiazd</value>
+    <comment>Star store</comment>
+  </data>
+  <data name="NavStreak.Text" xml:space="preserve">
+    <value>Seria</value>
+    <comment>Streak</comment>
+  </data>
+  <data name="NavSettings.Text" xml:space="preserve">
+    <value>Ustawienia</value>
+    <comment>Settings</comment>
+  </data>
+  <data name="WelcomeMessage.Text" xml:space="preserve">
+    <value>Czas podbić dzień!</value>
+    <comment>Ready to conquer the day?</comment>
+  </data>
+  <data name="SettingsTitle.Text" xml:space="preserve">
+    <value>Ustawienia</value>
+    <comment>Settings</comment>
+  </data>
+  <data name="SettingsAppearance.Text" xml:space="preserve">
+    <value>Wygląd</value>
+    <comment>Appearance</comment>
+  </data>
+  <data name="SettingsTheme.Header" xml:space="preserve">
+    <value>Motyw</value>
+    <comment>Theme</comment>
+  </data>
+  <data name="SettingsTheme.Description" xml:space="preserve">
+    <value>Wybierz schemat kolorów.</value>
+    <comment>Choose your preferred color scheme.</comment>
+  </data>
+  <data name="ThemeSystem.Content" xml:space="preserve">
+    <value>Domyślny</value>
+    <comment>System default</comment>
+  </data>
+  <data name="ThemeLight.Content" xml:space="preserve">
+    <value>Jasny</value>
+    <comment>Light</comment>
+  </data>
+  <data name="ThemeDark.Content" xml:space="preserve">
+    <value>Ciemny</value>
+    <comment>Dark</comment>
+  </data>
+  <data name="SettingsBehavior.Text" xml:space="preserve">
+    <value>Zachowanie</value>
+    <comment>Behavior</comment>
+  </data>
+  <data name="SettingsKillProcess.Header" xml:space="preserve">
+    <value>Zatrzymaj usługę przy zamknięciu</value>
+    <comment>Kill background process on exit</comment>
+  </data>
+  <data name="SettingsKillProcess.Description" xml:space="preserve">
+    <value>Wyłącz usługę minutnika w tle, nawet jeżeli zamkniesz aplikację z otwartą sesją.</value>
+    <comment>Stop the background worker when closing the app with an active session.</comment>
+  </data>
+  <data name="SettingsAppService.Text" xml:space="preserve">
+    <value>Usługa aplikacji</value>
+    <comment>App Service</comment>
+  </data>
+  <data name="SettingsAnnounce.Header" xml:space="preserve">
+    <value>Udostępnij status minutnika wspieranym aplikacjom</value>
+    <comment>Announce timer status to compatible apps</comment>
+  </data>
+  <data name="SettingsAnnounce.Description" xml:space="preserve">
+    <value>Włącz usługę aplikacji, aby udostępniać innym aplikacjom aktualizacje minutnika i pozwolić im go kontrolować.</value>
+    <comment>Enable App Service to broadcast timer updates to other applications.</comment>
+  </data>
+  <data name="SettingsHomeItems.Text" xml:space="preserve">
+    <value>Zarządzaj panelem</value>
+    <comment>Manage Home Items</comment>
+  </data>
+  <data name="SettingsShowWelcome.Header" xml:space="preserve">
+    <value>Wyświetl powitanie</value>
+    <comment>Show welcome message</comment>
+  </data>
+  <data name="SettingsShowWelcome.Description" xml:space="preserve">
+    <value>Pokaż krótkie powitanie na początku panelu.</value>
+    <comment>Display a welcome message on the home page.</comment>
+  </data>
+  <data name="SettingsShowStats.Header" xml:space="preserve">
+    <value>Wyświetl statystyki sesji</value>
+    <comment>Show session stats</comment>
+  </data>
+  <data name="SettingsShowStats.Description" xml:space="preserve">
+    <value>Pokaż statystyki sesji na panelu.</value>
+    <comment>Display session statistics on the home page.</comment>
+  </data>
+  <data name="SettingsShowHistory.Header" xml:space="preserve">
+    <value>Pokaż sesje ostatniego tygodnia</value>
+    <comment>Show last week's sessions</comment>
+  </data>
+  <data name="SettingsShowHistory.Description" xml:space="preserve">
+    <value>Wyświetl 7 dni historii sesji na panelu.</value>
+    <comment>Display the last 7 days of session history on the home page.</comment>
+  </data>
+  <data name="SettingsShowQuote.Header" xml:space="preserve">
+    <value>Wyświetl cytat dnia</value>
+    <comment>Show quote of the day</comment>
+  </data>
+  <data name="SettingsShowQuote.Description" xml:space="preserve">
+    <value>Pokaż inspirujący cytat na panelu.</value>
+    <comment>Display an inspiring quote on the home page.</comment>
+  </data>
+  <data name="SettingsShowTips.Header" xml:space="preserve">
+    <value>Wyświetl pro-tipy</value>
+    <comment>Show pro tips</comment>
+  </data>
+  <data name="SettingsShowTips.Description" xml:space="preserve">
+    <value>Pokaż wskazówki dotyczące produktywności na panelu.</value>
+    <comment>Display productivity tips on the home page.</comment>
+  </data>
+  <data name="StatsTitle.Text" xml:space="preserve">
+    <value>Twoje statystyki skupienia</value>
+    <comment>Your focus stats</comment>
+  </data>
+  <data name="StatsEmpty.Text" xml:space="preserve">
+    <value>Brak statystyk w tym tygodniu.</value>
+    <comment>No stats available for this week.</comment>
+  </data>
+  <data name="HistoryTitle.Text" xml:space="preserve">
+    <value>Ostatnie sesje</value>
+    <comment>Recent sessions</comment>
+  </data>
+  <data name="HistoryEmpty.Text" xml:space="preserve">
+    <value>Brak ostatnich sesji.</value>
+    <comment>No recent sessions.</comment>
+  </data>
+  <data name="QuoteTitle.Text" xml:space="preserve">
+    <value>Cytat dnia</value>
+    <comment>Quote of the day</comment>
+  </data>
+  <data name="QuoteLoading.Text" xml:space="preserve">
+    <value>Ładowanie cytatu...</value>
+    <comment>Loading quote...</comment>
+  </data>
+  <data name="TipsTitle.Text" xml:space="preserve">
+    <value>Wskazówka</value>
+    <comment>Pro tip</comment>
+  </data>
+  <data name="TipsLoading.Text" xml:space="preserve">
+    <value>Ładowanie wskazówki...</value>
+    <comment>Loading tip...</comment>
+  </data>
+  <data name="Quote1_Text" xml:space="preserve">
+    <value>Skup się na byciu produktywnym, a nie na byciu zajętym.</value>
+    <comment>Focus on being productive instead of busy.</comment>
+  </data>
+  <data name="Quote1_Author" xml:space="preserve">
+    <value>Tim Ferriss</value>
+    <comment>Tim Ferriss</comment>
+  </data>
+  <data name="Quote2_Text" xml:space="preserve">
+    <value>Głodź swoje rozpraszacze, karm swoje skupienie.</value>
+    <comment>Starve your distractions, feed your focus.</comment>
+  </data>
+  <data name="Quote2_Author" xml:space="preserve">
+    <value>Nieznany</value>
+    <comment>Unknown</comment>
+  </data>
+  <data name="Quote3_Text" xml:space="preserve">
+    <value>Zwycięski wojownik to przeciętny człowiek obdarzony laserowym skupieniem.</value>
+    <comment>The successful warrior is the average man, with laser-like focus.</comment>
+  </data>
+  <data name="Quote3_Author" xml:space="preserve">
+    <value>Bruce Lee</value>
+    <comment>Bruce Lee</comment>
+  </data>
+  <data name="Quote4_Text" xml:space="preserve">
+    <value>Skoncentruj wszystkie myśli na zadaniu, które masz przed sobą. Promienie słońca nie parzą, dopóki nie zostaną skupione.</value>
+    <comment>Concentrate all your thoughts upon the work at hand. The sun's rays do not burn until brought to a focus.</comment>
+  </data>
+  <data name="Quote4_Author" xml:space="preserve">
+    <value>Alexander Graham Bell</value>
+    <comment>Alexander Graham Bell</comment>
+  </data>
+  <data name="Quote5_Text" xml:space="preserve">
+    <value>Nie zawsze chodzi o to, by robić więcej, lecz by skupić się na mniejszej liczbie rzeczy.</value>
+    <comment>It’s not always that we need to do more but rather that we need to focus on less.</comment>
+  </data>
+  <data name="Quote5_Author" xml:space="preserve">
+    <value>Nathan W. Morris</value>
+    <comment>Nathan W. Morris</comment>
+  </data>
+  <data name="Tip1_Text" xml:space="preserve">
+    <value>Wybierz częste, krótkie przerwy, aby dłużej utrzymać wysoką produktywność.</value>
+    <comment>Take short breaks often to keep your mind fresh and maintain high productivity over time.</comment>
+  </data>
+  <data name="Tip2_Text" xml:space="preserve">
+    <value>Używaj zasady 20-20-20: co 20 minut, spójrz na coś 20 metrów dalej przez 20 sekund.</value>
+    <comment>Use the 20-20-20 rule: every 20 minutes, look at something 20 feet away for 20 seconds.</comment>
+  </data>
+  <data name="Tip3_Text" xml:space="preserve">
+    <value>Pozbądź się rozproszeń w czasie skupienia. Włącz tryb 'Nie przeszkadzać' na swoich urządzeniach.</value>
+    <comment>Eliminate distractions during focus blocks. Turn on 'Do Not Disturb' on your devices.</comment>
+  </data>
+  <data name="Tip4_Text" xml:space="preserve">
+    <value>Ustal jasne, możliwe do wykonania cele przed rozpoczęciem minutnika.</value>
+    <comment>Set clear, actionable goals before starting a timer.</comment>
+  </data>
+  <data name="Tip5_Text" xml:space="preserve">
+    <value>Nawadniaj się! Trzymaj szklankę wody przy biurku.</value>
+    <comment>Stay hydrated! Keep a glass of water on your desk.</comment>
+  </data>
+  <data name="Tip6_Text" xml:space="preserve">
+    <value>Staraj się planować najbardziej wymagające zadania na czas, gdy masz najwięcej energii.</value>
+    <comment>Try planning your most demanding tasks for your peak energy hours.</comment>
+  </data>
+  <data name="Tip7_Text" xml:space="preserve">
+    <value>Przejrzyj swoje statystyki tygodniowe, aby zidentyfikować wzorce swojego skupienia.</value>
+    <comment>Review your weekly stats to identify patterns in your focus behavior.</comment>
+  </data>
+  <data name="HistoryPageTitle.Text" xml:space="preserve">
+    <value>Historia sesji</value>
+  </data>
+  <data name="HistoryPrevious.Content" xml:space="preserve">
+    <value>← Poprzedni</value>
+  </data>
+  <data name="HistoryNext.Content" xml:space="preserve">
+    <value>Następny →</value>
+  </data>
+  <data name="HistoryDuration.Text" xml:space="preserve">
+    <value>Czas trwania</value>
+  </data>
+  <data name="HistoryBreak.Text" xml:space="preserve">
+    <value>Przerwa</value>
+  </data>
+  <data name="HistoryStarted.Text" xml:space="preserve">
+    <value>Rozpoczęto</value>
+  </data>
+  <data name="HistoryTotalFocus.Text" xml:space="preserve">
+    <value>Skupienie</value>
+  </data>
+  <data name="StartStopInitializing" xml:space="preserve">
+    <value>Inicjowanie...</value>
+  </data>
+  <data name="StartStopStart" xml:space="preserve">
+    <value>Rozpocznij</value>
+  </data>
+  <data name="StartStopResume" xml:space="preserve">
+    <value>Wznów</value>
+  </data>
+  <data name="StartStopPause" xml:space="preserve">
+    <value>Pauza</value>
+  </data>
+  <data name="SessionTimePrefixFocus" xml:space="preserve">
+    <value>Blok skupienia kończy się za</value>
+  </data>
+  <data name="SessionTimePrefixBreak" xml:space="preserve">
+    <value>Przerwa kończy się za</value>
+  </data>
+  <data name="SessionTimePrefixEnd" xml:space="preserve">
+    <value>Sesja zakończy się o</value>
+  </data>
+  <data name="SessionRunningTitle" xml:space="preserve">
+    <value>Sesja trwa</value>
+  </data>
+  <data name="SessionRunningContent" xml:space="preserve">
+    <value>Sesja działa w tle. Zatrzymać ją i wyjść?</value>
+  </data>
+  <data name="SessionRunningPrimary" xml:space="preserve">
+    <value>Zatrzymaj i wyjdź</value>
+  </data>
+  <data name="SessionRunningClose" xml:space="preserve">
+    <value>Pozostaw i zamknij UI</value>
+  </data>
+  <data name="MinuteToggleCustomize" xml:space="preserve">
+    <value>Dostosuj</value>
+  </data>
+  <data name="MinuteToggleCancel" xml:space="preserve">
+    <value>Anuluj sesję</value>
+  </data>
+  <data name="StatusCancelled" xml:space="preserve">
+    <value>Anulowano</value>
+  </data>
+  <data name="StatusPaused" xml:space="preserve">
+    <value>Wstrzymano</value>
+  </data>
+  <data name="StatusCompleted" xml:space="preserve">
+    <value>Ukończono</value>
+  </data>
+  <data name="StatusInProgress" xml:space="preserve">
+    <value>W toku</value>
+  </data>
+  <data name="HistoryControlMin.Text" xml:space="preserve">
+    <value>min</value>
+  </data>
 </root>

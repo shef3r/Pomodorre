@@ -16,10 +16,9 @@
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <ScrollViewer HorizontalAlignment="Stretch" MaxWidth="1200" Padding="40,20,40,20">
             <StackPanel HorizontalAlignment="Stretch" Orientation="Vertical" Margin="0,0,0,30" Spacing="24">
-                <TextBlock x:Name="WelcomeMessage" 
+                <TextBlock x:Name="WelcomeMessage" x:Uid="WelcomeMessage"
            Visibility="{x:Bind Settings.ShowWelcomeMessage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
            FontWeight="SemiBold" FontFamily="Segoe UI Variable Display" FontSize="36" Margin="10,20,0,10">
-     Ready to conquer the day?
                 </TextBlock>
 
                 <ItemsRepeater x:Name="StaggeredRepeater" 
