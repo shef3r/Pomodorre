@@ -14,28 +14,28 @@
     </Page.Resources>
 
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <ScrollViewer HorizontalAlignment="Stretch" MaxWidth="1200" Padding="50,0,50,0">
-            <StackPanel HorizontalAlignment="Stretch" Orientation="Vertical" Margin="0,0,0,20">
+        <ScrollViewer HorizontalAlignment="Stretch" MaxWidth="1200" Padding="40,20,40,20">
+            <StackPanel HorizontalAlignment="Stretch" Orientation="Vertical" Margin="0,0,0,30" Spacing="24">
                 <TextBlock x:Name="WelcomeMessage" 
            Visibility="{x:Bind Settings.ShowWelcomeMessage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-           FontWeight="SemiBold" FontFamily="Segoe UI Variable Display" FontSize="30">
-    Welcome to Pomodorre!
+           FontWeight="SemiBold" FontFamily="Segoe UI Variable Display" FontSize="36" Margin="10,20,0,10">
+     Ready to conquer the day?
                 </TextBlock>
 
                 <ItemsRepeater x:Name="StaggeredRepeater" 
                     ItemsSource="{x:Bind HomeItemsCollection, Mode=OneWay}">
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate>
-                            <Grid Padding="10" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8">
+                            <Grid Padding="0" Background="Transparent" CornerRadius="8">
                                 <ContentPresenter Content="{Binding}"/>
                             </Grid>
                         </DataTemplate>
                     </ItemsRepeater.ItemTemplate>
                     <ItemsRepeater.Layout>
-                        <controls:StaggeredLayout ColumnSpacing="10"
-                                              DesiredColumnWidth="300"
+                        <controls:StaggeredLayout ColumnSpacing="16"
+                                              DesiredColumnWidth="320"
                                               ItemsStretch="Fill"
-                                              RowSpacing="10" />
+                                              RowSpacing="16" />
                     </ItemsRepeater.Layout>
                 </ItemsRepeater>
 

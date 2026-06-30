@@ -70,7 +70,11 @@ namespace Pomodorre.Tools
 
         public static bool KillBackgroundProcessOnExit
         {
+#if DEBUG
             get => Get(nameof(KillBackgroundProcessOnExit), true);
+#else
+            get => Get(nameof(KillBackgroundProcessOnExit), false);
+#endif
             set => Set(nameof(KillBackgroundProcessOnExit), value);
         }
 
@@ -166,6 +170,18 @@ namespace Pomodorre.Tools
         {
             get => Get(nameof(ShowHistoryStats), true);
             set => Set(nameof(ShowHistoryStats), value);
+        }
+
+        public bool ShowQuote
+        {
+            get => Get(nameof(ShowQuote), true);
+            set => Set(nameof(ShowQuote), value);
+        }
+
+        public bool ShowTips
+        {
+            get => Get(nameof(ShowTips), true);
+            set => Set(nameof(ShowTips), value);
         }
 
         private static T Get<T>(string key, T? defaultValue = default)

@@ -3,7 +3,7 @@
     x:Class="Pomodorre.Controls.HomeTiles.StatsControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Pomodorre.Controls.HomeTiles"
+    xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
@@ -11,28 +11,19 @@
     <Grid Padding="5">
         <StackPanel Spacing="10">
             <TextBlock FontSize="16" FontWeight="SemiBold">Your focus stats</TextBlock>
-            <ItemsRepeater x:Name="StatsList" ItemsSource="{x:Bind DayStats, Mode=OneWay}">
-                <ItemsRepeater.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Padding="12" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" CornerRadius="8" Margin="0,4">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock FontSize="14" VerticalAlignment="Center">
-                                <Run Text="{Binding Day}" FontWeight="SemiBold"/>
-                            </TextBlock>
-                            <StackPanel Orientation="Horizontal" Grid.Column="1" Spacing="8">
-                                <ProgressBar Value="{Binding Minutes}" Maximum="{Binding MaxMinutes}" Width="80" Height="6" VerticalAlignment="Center"/>
-                                <TextBlock FontSize="13" FontWeight="SemiBold" MinWidth="50" TextAlignment="Right">
-                                    <Run Text="{Binding Minutes}"/>
-                                    <Run Text="min" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                </TextBlock>
-                            </StackPanel>
-                        </Grid>
-                    </DataTemplate>
-                </ItemsRepeater.ItemTemplate>
-            </ItemsRepeater>
+            <Grid Padding="16" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8">
+                <Grid Height="200">
+                    <TextBlock x:Name="EmptyText" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="No stats available for this week." />
+                    
+                    <lvc:CartesianChart
+                        x:Name="Chart"
+                        Series="{x:Bind Series, Mode=OneWay}"
+                        XAxes="{x:Bind XAxes, Mode=OneWay}"
+                        YAxes="{x:Bind YAxes, Mode=OneWay}"
+                        TooltipPosition="Top">
+                    </lvc:CartesianChart>
+                </Grid>
+            </Grid>
         </StackPanel>
     </Grid>
 </UserControl>

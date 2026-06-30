@@ -37,8 +37,13 @@ namespace Pomodorre.WinUI.Pages
             switch (e.PropertyName)
             {
                 case nameof(HomeItems.ShowSessionStats):
+                case nameof(HomeItems.ShowHistoryStats):
+                case nameof(HomeItems.ShowQuote):
+                case nameof(HomeItems.ShowTips):
                     UpdateControlVisibility<Pomodorre.Controls.HomeTiles.StatsControl>(Settings.ShowSessionStats);
                     UpdateControlVisibility<Pomodorre.Controls.HomeTiles.HistoryControl>(Settings.ShowHistoryStats);
+                    UpdateControlVisibility<Pomodorre.Controls.HomeTiles.QuoteControl>(Settings.ShowQuote);
+                    UpdateControlVisibility<Pomodorre.Controls.HomeTiles.TipsControl>(Settings.ShowTips);
                     break;
             }
         }
@@ -68,6 +73,14 @@ namespace Pomodorre.WinUI.Pages
             if (Settings.ShowHistoryStats)
             {
                 HomeItemsCollection.Add(new Pomodorre.Controls.HomeTiles.HistoryControl());
+            }
+            if (Settings.ShowQuote)
+            {
+                HomeItemsCollection.Add(new Pomodorre.Controls.HomeTiles.QuoteControl());
+            }
+            if (Settings.ShowTips)
+            {
+                HomeItemsCollection.Add(new Pomodorre.Controls.HomeTiles.TipsControl());
             }
         }
     }

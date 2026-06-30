@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
 		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
@@ -10,6 +10,8 @@
 	<ItemGroup>
 	  <None Remove="HomeTiles\HistoryControl.xaml" />
 	  <None Remove="HomeTiles\StatsControl.xaml" />
+	  <None Remove="HomeTiles\QuoteControl.xaml" />
+	  <None Remove="HomeTiles\TipsControl.xaml" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7705" />
@@ -23,9 +25,13 @@
 	  <Page Update="HomeTiles\HistoryControl.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </Page>
-	</ItemGroup>
-	<ItemGroup>
 	  <Page Update="HomeTiles\StatsControl.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <Page Update="HomeTiles\QuoteControl.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <Page Update="HomeTiles\TipsControl.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </Page>
 	</ItemGroup>

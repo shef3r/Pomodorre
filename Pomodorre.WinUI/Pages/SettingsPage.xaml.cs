@@ -12,6 +12,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Pomodorre.Tools;
 using Pomodorre.WinUI.ViewModels;
+using Windows.ApplicationModel;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -25,6 +26,8 @@ namespace Pomodorre.WinUI.Pages
         {
             InitializeComponent();
             ViewModel = new SettingsViewModel();
+            PackageVersion v = Package.Current.Id.Version;
+            Version.Text = $"{v.Major}.{v.Minor}.{v.Build}.{v.Revision}";
         }
 
         private void ThemeRadio_Checked(object sender, RoutedEventArgs e)

@@ -10,8 +10,8 @@
 
   <Identity
     Name="5c609323-e169-4b53-a71d-053eda69ccf8"
-    Publisher="CN=Bruno"
-    Version="1.0.0.0" />
+    Publisher="CN=Bruno R"
+    Version="0.4.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="5c609323-e169-4b53-a71d-053eda69ccf8" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

@@ -97,5 +97,6 @@
 		<AppxBundle>Never</AppxBundle>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 		<ApplicationIcon>appicon.ico</ApplicationIcon>
+		<PackageCertificateKeyFile>Pomodorre.WinUI_TemporaryKey.pfx</PackageCertificateKeyFile>
 	</PropertyGroup>
 </Project>

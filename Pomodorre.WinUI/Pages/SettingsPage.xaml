@@ -25,7 +25,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Style="{StaticResource DisplayTextBlockStyle}" FontSize="30">Settings</TextBlock>
                         <TextBlock Opacity="0.7" Grid.Column="1" TextAlignment="Right">
-            v1.0-beta1<LineBreak/>created by shef3r.
+            v<Run x:Name="Version"/>-beta<LineBreak/>created by shef3r.
                         </TextBlock>
                     </Grid>
                 </Grid>
@@ -68,6 +68,18 @@
                         <FontIcon Glyph="&#xE81C;" />
                     </set:SettingsCard.HeaderIcon>
                     <ToggleSwitch IsOn="{x:Bind ViewModel.HomeItems.ShowHistoryStats, Mode=TwoWay}"/>
+                </set:SettingsCard>
+                <set:SettingsCard Header="Show quote of the day" Description="Display an inspiring quote on the home page.">
+                    <set:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE134;" />
+                    </set:SettingsCard.HeaderIcon>
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.HomeItems.ShowQuote, Mode=TwoWay}"/>
+                </set:SettingsCard>
+                <set:SettingsCard Header="Show pro tips" Description="Display productivity tips on the home page.">
+                    <set:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE82F;" />
+                    </set:SettingsCard.HeaderIcon>
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.HomeItems.ShowTips, Mode=TwoWay}"/>
                 </set:SettingsCard>
             </StackPanel>
         </ScrollViewer>
